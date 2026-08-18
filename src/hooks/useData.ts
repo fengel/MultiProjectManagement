@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { supabase } from '@/lib/supabase';
+import { api } from '@/lib/api';
 import type { Allocation, Developer, Project, Year } from '@/lib/types';
 
 export interface DataState {
@@ -25,22 +25,11 @@ export function useData(): DataState {
     setLoading(true);
     setError(null);
     try {
-      const [yRes, dRes, pRes, aRes] = await Promise.all([
-        supabase.from('years').select('*').order('year', { ascending: true }),
-        supabase.from('developers').select('*').order('sort_order', { ascending: true }),
-        supabase.from('projects').select('*').order('sort_order', { ascending: true }),
-        supabase.from('allocations').select('*'),
-      ]);
-
-      if (yRes.error) throw yRes.error;
-      if (dRes.error) throw dRes.error;
-      if (pRes.error) throw pRes.error;
-      if (aRes.error) throw aRes.error;
-
-      setYears(yRes.data as Year[]);
-      setDevelopers(dRes.data as Developer[]);
-      setProjects(pRes.data as Project[]);
-      setAllocations(aRes.data as Allocation[]);
+      const payload = await api.getData();
+      setYears(payload.years as Year[]);
+      setDevelopers(payload.developers as Developer[]);
+      setProjects(payload.projects as Project[]);
+      setAllocations(payload.allocations as Allocation[]);
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Failed to load data');
     } finally {

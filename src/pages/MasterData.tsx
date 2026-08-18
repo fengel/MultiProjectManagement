@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { supabase } from '@/lib/supabase';
+import { api } from '@/lib/api';
 import type { Developer, Project, Year } from '@/lib/types';
 import { fmtEUR2 } from '@/lib/format';
 import { PageHeader } from '@/components/PageHeader';
@@ -29,23 +29,21 @@ export function MasterData({ years, activeYear, developers, projects, refresh }:
 
   const saveWorkingDays = async () => {
     if (!activeYear) return;
-    const { error } = await supabase
-      .from('years')
-      .update({ working_days_per_month: workingDays })
-      .eq('id', activeYear.id);
-    if (error) {
-      alert('Failed to update working days: ' + error.message);
-      return;
+    try {
+      await api.updateWorkingDays({ yearId: activeYear.id, workingDaysPerMonth: workingDays });
+      await refresh();
+    } catch (error) {
+      alert('Failed to update working days: ' + (error instanceof Error ? error.message : 'Unknown error'));
     }
-    await refresh();
   };
 
   const setActiveYear = async (yearId: string) => {
-    const { error: e1 } = await supabase.from('years').update({ is_active: false }).neq('id', yearId);
-    if (e1) { alert(e1.message); return; }
-    const { error: e2 } = await supabase.from('years').update({ is_active: true }).eq('id', yearId);
-    if (e2) { alert(e2.message); return; }
-    await refresh();
+    try {
+      await api.setActiveYear(yearId);
+      await refresh();
+    } catch (error) {
+      alert(error instanceof Error ? error.message : 'Failed to set active year');
+    }
   };
 
   const createYear = async () => {
@@ -53,27 +51,35 @@ export function MasterData({ years, activeYear, developers, projects, refresh }:
     if (!y || y < 2000 || y > 2100) { alert('Enter a valid year (e.g. 2027)'); return; }
     if (years.some((x) => x.year === y)) { alert('Year already exists'); return; }
     setSavingYear(true);
-    // Set all existing years inactive, then insert new year as active.
-    await supabase.from('years').update({ is_active: false }).neq('year', y);
-    const { error } = await supabase.from('years').insert({ year: y, working_days_per_month: 20, is_active: true });
-    setSavingYear(false);
-    if (error) { alert(error.message); return; }
-    setNewYearName('');
-    await refresh();
+    try {
+      await api.createYear({ year: y, workingDaysPerMonth: 20 });
+      setNewYearName('');
+      await refresh();
+    } catch (error) {
+      alert(error instanceof Error ? error.message : 'Failed to create year');
+    } finally {
+      setSavingYear(false);
+    }
   };
 
   const deleteDeveloper = async (dev: Developer) => {
     if (!confirm(`Delete developer "${dev.name}"? This also removes all their allocations.`)) return;
-    const { error } = await supabase.from('developers').delete().eq('id', dev.id);
-    if (error) { alert(error.message); return; }
-    await refresh();
+    try {
+      await api.deleteDeveloper(dev.id);
+      await refresh();
+    } catch (error) {
+      alert(error instanceof Error ? error.message : 'Failed to delete developer');
+    }
   };
 
   const deleteProject = async (proj: Project) => {
     if (!confirm(`Delete project "${proj.code} — ${proj.name}"? This also removes its allocations.`)) return;
-    const { error } = await supabase.from('projects').delete().eq('id', proj.id);
-    if (error) { alert(error.message); return; }
-    await refresh();
+    try {
+      await api.deleteProject(proj.id);
+      await refresh();
+    } catch (error) {
+      alert(error instanceof Error ? error.message : 'Failed to delete project');
+    }
   };
 
   return (
@@ -304,20 +310,21 @@ function DeveloperModal({
     if (!name.trim() || !role.trim()) { alert('Name and role are required'); return; }
     if (rate < 0 || fte < 0 || fte > 2) { alert('Invalid rate or FTE'); return; }
     setSaving(true);
-    if (developer) {
-      const { error } = await supabase.from('developers').update({
-        name: name.trim(), role: role.trim(), monthly_rate: rate, target_fte: fte,
-      }).eq('id', developer.id);
-      setSaving(false);
-      if (error) { alert(error.message); return; }
-    } else {
-      const { error } = await supabase.from('developers').insert({
-        name: name.trim(), role: role.trim(), monthly_rate: rate, target_fte: fte, sort_order: sortOrder + 1,
+    try {
+      await api.upsertDeveloper({
+        id: developer?.id,
+        name: name.trim(),
+        role: role.trim(),
+        monthly_rate: rate,
+        target_fte: fte,
+        sort_order: sortOrder + 1,
       });
+      onSaved();
+    } catch (error) {
+      alert(error instanceof Error ? error.message : 'Could not save developer');
+    } finally {
       setSaving(false);
-      if (error) { alert(error.message); return; }
     }
-    onSaved();
   };
 
   return (
@@ -360,20 +367,20 @@ function ProjectModal({
   const save = async () => {
     if (!code.trim() || !name.trim()) { alert('Code and name are required'); return; }
     setSaving(true);
-    if (project) {
-      const { error } = await supabase.from('projects').update({
-        code: code.trim(), name: name.trim(), status,
-      }).eq('id', project.id);
-      setSaving(false);
-      if (error) { alert(error.message); return; }
-    } else {
-      const { error } = await supabase.from('projects').insert({
-        code: code.trim(), name: name.trim(), status, sort_order: sortOrder + 1,
+    try {
+      await api.upsertProject({
+        id: project?.id,
+        code: code.trim(),
+        name: name.trim(),
+        status,
+        sort_order: sortOrder + 1,
       });
+      onSaved();
+    } catch (error) {
+      alert(error instanceof Error ? error.message : 'Could not save project');
+    } finally {
       setSaving(false);
-      if (error) { alert(error.message); return; }
     }
-    onSaved();
   };
 
   return (

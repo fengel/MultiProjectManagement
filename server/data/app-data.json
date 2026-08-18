@@ -1,0 +1,85 @@
+{
+  "years": [
+    {
+      "id": "seed-year-2026",
+      "year": 2026,
+      "working_days_per_month": 20,
+      "is_active": true
+    }
+  ],
+  "developers": [
+    {
+      "id": "seed-dev-1",
+      "name": "Anna Schmidt",
+      "role": "Frontend Engineer",
+      "monthly_rate": 7000,
+      "target_fte": 1,
+      "sort_order": 3
+    },
+    {
+      "id": "seed-dev-2",
+      "name": "Ben Müller",
+      "role": "Backend Engineer",
+      "monthly_rate": 8900,
+      "target_fte": 1,
+      "sort_order": 3
+    }
+  ],
+  "projects": [
+    {
+      "id": "seed-proj-1",
+      "code": "PRJ-01",
+      "name": "Customer Portal Redesign",
+      "status": "Active",
+      "sort_order": 1
+    },
+    {
+      "id": "seed-proj-2",
+      "code": "PRJ-02",
+      "name": "Payment Gateway Integration",
+      "status": "Active",
+      "sort_order": 2
+    },
+    {
+      "id": "proj-1787066953712-dcecebc383a08",
+      "code": "PRJ-03",
+      "name": "NFDI4Energy",
+      "status": "Active",
+      "sort_order": 3
+    }
+  ],
+  "allocations": [
+    {
+      "id": "alloc-1787066919382-11f6d4e75932d8",
+      "developer_id": "seed-dev-1",
+      "project_id": "seed-proj-1",
+      "year_id": "seed-year-2026",
+      "month": 1,
+      "allocation_pct": 0.1
+    },
+    {
+      "id": "alloc-1787066922335-2cdbf1f986af98",
+      "developer_id": "seed-dev-1",
+      "project_id": "seed-proj-2",
+      "year_id": "seed-year-2026",
+      "month": 1,
+      "allocation_pct": 0.9
+    },
+    {
+      "id": "alloc-1787066977915-506b3d40b8bea8",
+      "developer_id": "seed-dev-2",
+      "project_id": "seed-proj-1",
+      "year_id": "seed-year-2026",
+      "month": 1,
+      "allocation_pct": 0.4
+    },
+    {
+      "id": "alloc-1787066980444-24afcd5050bb08",
+      "developer_id": "seed-dev-2",
+      "project_id": "seed-proj-2",
+      "year_id": "seed-year-2026",
+      "month": 1,
+      "allocation_pct": 0.2
+    }
+  ]
+}

@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { supabase } from '@/lib/supabase';
+import { api } from '@/lib/api';
 import type { Allocation, Developer, Project, Year } from '@/lib/types';
 import { MONTH_NAMES, MONTH_NAMES_FULL } from '@/lib/types';
 import { devMonthTotal } from '@/lib/calc';
@@ -41,13 +41,20 @@ export function AllocationPage({ year, developers, projects, allocations, refres
     const existing = allocMap.get(`${devId}|${projId}`);
     if (existing) {
       if (val === 0) {
-        await supabase.from('allocations').delete().eq('id', existing.id);
+        await api.deleteAllocation(existing.id);
       } else {
-        await supabase.from('allocations').update({ allocation_pct: val }).eq('id', existing.id);
+        await api.upsertAllocation({
+          id: existing.id,
+          developer_id: devId,
+          project_id: projId,
+          year_id: year.id,
+          month: month + 1,
+          allocation_pct: val,
+        });
       }
     } else {
       if (val > 0) {
-        await supabase.from('allocations').insert({
+        await api.upsertAllocation({
           developer_id: devId,
           project_id: projId,
           year_id: year.id,
