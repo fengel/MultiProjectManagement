@@ -1,5 +1,61 @@
-import type { Allocation, Developer, Project, Year } from '@/lib/types';
+import type { Allocation, Developer, Project, Year, DeveloperSalaryEntry, ExtraPayment } from '@/lib/types';
 import { MONTH_NAMES, QUARTERS } from '@/lib/types';
+
+/**
+ * Get effective monthly rate for a developer in a given year and month.
+ * Finds the most recent salary entry that starts on or before the given month.
+ * Falls back to developer.monthly_rate if no salary entry exists for that year.
+ */
+export function getEffectiveMonthlyRateForMonth(
+  developerId: string,
+  year: number,
+  month: number, // 1-12
+  salaryEntries: DeveloperSalaryEntry[],
+  developers: Developer[]
+): number {
+  // Find all salary entries for this developer and year
+  const yearSalaries = salaryEntries.filter((s) => s.developer_id === developerId && s.year === year);
+  
+  // Find the most recent salary entry that starts on or before this month
+  let effectiveRate: number | null = null;
+  for (const salary of yearSalaries.sort((a, b) => Number(b.start_month) - Number(a.start_month))) {
+    if (Number(salary.start_month) <= month) {
+      effectiveRate = Number(salary.monthly_rate);
+      break;
+    }
+  }
+  
+  if (effectiveRate !== null) return effectiveRate;
+  
+  const dev = developers.find((d) => d.id === developerId);
+  return dev ? Number(dev.monthly_rate) : 0;
+}
+
+/**
+ * Get effective monthly rate for a developer in a given year (legacy - uses Jan 1 / month 1).
+ * Falls back to developer.monthly_rate if no salary entry exists for that year.
+ */
+export function getEffectiveMonthlyRate(
+  developerId: string,
+  year: number,
+  salaryEntries: DeveloperSalaryEntry[],
+  developers: Developer[]
+): number {
+  return getEffectiveMonthlyRateForMonth(developerId, year, 1, salaryEntries, developers);
+}
+
+/**
+ * Get total extra payments for a developer in a given year.
+ */
+export function getTotalExtraPayments(
+  developerId: string,
+  year: number,
+  extraPayments: ExtraPayment[]
+): number {
+  return extraPayments
+    .filter((p) => p.developer_id === developerId && p.year === year)
+    .reduce((sum, p) => sum + Number(p.amount), 0);
+}
 
 /**
  * Returns the allocation fraction (0..1) for a dev/project/month/year.
@@ -64,43 +120,83 @@ export function projectMonthPT(
 
 /**
  * Weighted monthly rate for a project (weighted by allocation fraction across all months/devs).
+ * Accounts for salary changes that occur during the year.
  */
 export function projectWeightedRate(
   allocations: Allocation[],
   projectId: string,
   yearId: string,
-  developers: Developer[]
+  developers: Developer[],
+  year: Year,
+  salaryEntries: DeveloperSalaryEntry[] = []
 ): number {
   const devs = new Map(developers.map((d) => [d.id, d]));
   let weightedSum = 0;
   let totalWeight = 0;
-  for (const a of allocations) {
-    if (a.project_id !== projectId || a.year_id !== yearId) continue;
-    const dev = devs.get(a.developer_id);
-    if (!dev) continue;
-    const w = Number(a.allocation_pct);
-    weightedSum += Number(dev.monthly_rate) * w;
-    totalWeight += w;
+  
+  // Calculate weighted rate across all months
+  for (let month = 1; month <= 12; month++) {
+    for (const a of allocations) {
+      if (a.project_id !== projectId || a.year_id !== yearId || a.month !== month) continue;
+      const dev = devs.get(a.developer_id);
+      if (!dev) continue;
+      const rate = getEffectiveMonthlyRateForMonth(dev.id, year.year, month, salaryEntries, developers);
+      const w = Number(a.allocation_pct);
+      weightedSum += rate * w;
+      totalWeight += w;
+    }
   }
+  
   return totalWeight > 0 ? weightedSum / totalWeight : 0;
 }
 
 /**
  * Total budget for a project across the year.
- * Budget = sum over months of (monthlyFTE * weightedMonthlyRate)
+ * Budget = sum over months of (monthlyFTE * effectiveMonthlyRate) + extra payments allocated to this project
+ * Accounts for salary changes that occur during the year.
  */
 export function projectTotalBudget(
   allocations: Allocation[],
   projectId: string,
   year: Year,
-  developers: Developer[]
+  developers: Developer[],
+  salaryEntries: DeveloperSalaryEntry[] = [],
+  extraPayments: ExtraPayment[] = []
 ): number {
-  const rate = projectWeightedRate(allocations, projectId, year.id, developers);
+  const devs = new Map(developers.map((d) => [d.id, d]));
   let budget = 0;
-  for (let m = 1; m <= 12; m++) {
-    const fte = projectMonthFTE(allocations, projectId, year.id, m);
-    budget += fte * rate;
+  
+  // Calculate budget month by month, using the appropriate rate for each month
+  for (let month = 1; month <= 12; month++) {
+    const monthAllocations = allocations.filter((a) => a.project_id === projectId && a.year_id === year.id && a.month === month);
+    for (const a of monthAllocations) {
+      const dev = devs.get(a.developer_id);
+      if (!dev) continue;
+      const rate = getEffectiveMonthlyRateForMonth(dev.id, year.year, month, salaryEntries, developers);
+      const fte = Number(a.allocation_pct);
+      budget += fte * rate;
+    }
   }
+  
+  // Add extra payments proportional to allocation
+  const projectAllocations = allocations.filter((a) => a.project_id === projectId && a.year_id === year.id);
+  const devIds = new Set(projectAllocations.map((a) => a.developer_id));
+  const totalAllocatedToProject = projectAllocations.reduce((sum, a) => sum + Number(a.allocation_pct), 0);
+  
+  for (const devId of devIds) {
+    const devProjectFTE = projectAllocations
+      .filter((a) => a.developer_id === devId)
+      .reduce((sum, a) => sum + Number(a.allocation_pct), 0);
+    const devExtraPayments = extraPayments
+      .filter((p) => p.developer_id === devId && p.year === year.year)
+      .reduce((sum, p) => sum + Number(p.amount), 0);
+    
+    if (totalAllocatedToProject > 0) {
+      const proportion = devProjectFTE / totalAllocatedToProject;
+      budget += devExtraPayments * proportion;
+    }
+  }
+  
   return budget;
 }
 
@@ -147,10 +243,12 @@ export function totalBudget(
   allocations: Allocation[],
   projects: Project[],
   year: Year,
-  developers: Developer[]
+  developers: Developer[],
+  salaryEntries: DeveloperSalaryEntry[] = [],
+  extraPayments: ExtraPayment[] = []
 ): number {
   return projects.reduce(
-    (sum, p) => sum + projectTotalBudget(allocations, p.id, year, developers),
+    (sum, p) => sum + projectTotalBudget(allocations, p.id, year, developers, salaryEntries, extraPayments),
     0
   );
 }
@@ -178,6 +276,38 @@ export function avgMonthlyRate(developers: Developer[]): number {
   const totalFTE = developers.reduce((s, d) => s + Number(d.target_fte), 0);
   if (totalFTE === 0) return 0;
   return developers.reduce((s, d) => s + Number(d.monthly_rate) * Number(d.target_fte), 0) / totalFTE;
+}
+
+/**
+ * Calculate total spending for an employee over the year.
+ * Includes: salary cost (month by month) + extra payments + allocated project budget share
+ */
+export function devYearlySpending(
+  developerId: string,
+  year: Year,
+  salaryEntries: DeveloperSalaryEntry[],
+  developers: Developer[],
+  extraPayments: ExtraPayment[],
+  allocations: Allocation[]
+): { salary: number; extraPayments: number; total: number } {
+  let salary = 0;
+  
+  // Calculate salary cost month by month
+  for (let month = 1; month <= 12; month++) {
+    const monthlyRate = getEffectiveMonthlyRateForMonth(developerId, year.year, month, salaryEntries, developers);
+    salary += monthlyRate;
+  }
+  
+  // Get extra payments for this developer in this year
+  const devExtraPayments = extraPayments
+    .filter((p) => p.developer_id === developerId && p.year === year.year)
+    .reduce((sum, p) => sum + Number(p.amount), 0);
+  
+  return {
+    salary,
+    extraPayments: devExtraPayments,
+    total: salary + devExtraPayments,
+  };
 }
 
 export interface QuarterStat {

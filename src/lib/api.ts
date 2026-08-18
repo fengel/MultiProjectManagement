@@ -22,7 +22,7 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
 }
 
 export const api = {
-  getData: () => request<{ years: unknown[]; developers: unknown[]; projects: unknown[]; allocations: unknown[] }>('/data'),
+  getData: () => request<{ years: unknown[]; developers: unknown[]; projects: unknown[]; allocations: unknown[]; salary_entries: unknown[]; extra_payments: unknown[] }>('/data'),
   upsertDeveloper: (developer: any) => request('/developers', {
     method: 'POST',
     body: JSON.stringify(developer),
@@ -50,4 +50,14 @@ export const api = {
     body: JSON.stringify(allocation),
   }),
   deleteAllocation: (id: string) => request(`/allocations/${id}`, { method: 'DELETE' }),
+  saveSalaryEntry: (entry: any) => request('/salary-entries', {
+    method: 'POST',
+    body: JSON.stringify(entry),
+  }),
+  deleteSalaryEntry: (id: string) => request(`/salary-entries/${id}`, { method: 'DELETE' }),
+  saveExtraPayment: (payment: any) => request('/extra-payments', {
+    method: 'POST',
+    body: JSON.stringify(payment),
+  }),
+  deleteExtraPayment: (id: string) => request(`/extra-payments/${id}`, { method: 'DELETE' }),
 };

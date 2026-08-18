@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { api } from '@/lib/api';
-import type { Developer, Project, Year } from '@/lib/types';
+import type { Developer, Project, Year, DeveloperSalaryEntry, ExtraPayment } from '@/lib/types';
 import { fmtEUR2 } from '@/lib/format';
 import { PageHeader } from '@/components/PageHeader';
 import { Plus, Pencil, Trash2, X, Check, CalendarPlus } from 'lucide-react';
@@ -10,12 +10,14 @@ interface MasterDataProps {
   activeYear: Year | null;
   developers: Developer[];
   projects: Project[];
+  salary_entries: DeveloperSalaryEntry[];
+  extra_payments: ExtraPayment[];
   refresh: () => Promise<void>;
 }
 
 type ModalType = 'dev' | 'project' | null;
 
-export function MasterData({ years, activeYear, developers, projects, refresh }: MasterDataProps) {
+export function MasterData({ years, activeYear, developers, projects, salary_entries, extra_payments, refresh }: MasterDataProps) {
   const [modal, setModal] = useState<ModalType>(null);
   const [editingDev, setEditingDev] = useState<Developer | null>(null);
   const [editingProj, setEditingProj] = useState<Project | null>(null);
@@ -271,6 +273,14 @@ export function MasterData({ years, activeYear, developers, projects, refresh }:
         </div>
       </div>
 
+      {/* Salary & Extra Payments by Year */}
+      {activeYear && (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+          <SalaryByYearSection year={activeYear} developers={developers} salary_entries={salary_entries} refresh={refresh} />
+          <ExtraPaymentsSection year={activeYear} developers={developers} extra_payments={extra_payments} refresh={refresh} />
+        </div>
+      )}
+
       {modal === 'dev' && (
         <DeveloperModal
           developer={editingDev}
@@ -287,6 +297,328 @@ export function MasterData({ years, activeYear, developers, projects, refresh }:
           onSaved={async () => { setModal(null); await refresh(); }}
         />
       )}
+    </div>
+  );
+}
+
+/* ---------- Salary by Year Section ---------- */
+function SalaryByYearSection({
+  year, developers, salary_entries, refresh,
+}: {
+  year: Year;
+  developers: Developer[];
+  salary_entries: DeveloperSalaryEntry[];
+  refresh: () => Promise<void>;
+}) {
+  const [expandedDev, setExpandedDev] = useState<string | null>(null);
+  const MONTH_NAMES_SHORT = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+  return (
+    <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-5">
+      <h3 className="font-semibold text-slate-900 mb-4">Salary Rates for {year.year}</h3>
+      <div className="space-y-3">
+        {developers.map((dev) => {
+          const salariesForYear = salary_entries.filter((s) => s.developer_id === dev.id && s.year === year.year);
+          const primarySalary = salariesForYear.length > 0 
+            ? salariesForYear.sort((a, b) => Number(a.start_month) - Number(b.start_month))[0]
+            : null;
+          const displayRate = primarySalary ? Number(primarySalary.monthly_rate) : Number(dev.monthly_rate);
+          const displayMonth = primarySalary ? MONTH_NAMES_SHORT[Number(primarySalary.start_month) - 1] : null;
+          
+          return (
+            <div key={dev.id} className="border border-slate-200 rounded-lg p-3">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="font-medium text-slate-800">{dev.name}</p>
+                  <p className="text-xs text-slate-500">
+                    {fmtEUR2(displayRate)}/month
+                    {displayMonth && salariesForYear.length > 0 && ` • from ${displayMonth}`}
+                  </p>
+                  {salariesForYear.length > 1 && (
+                    <p className="text-xs text-amber-600 mt-1">({salariesForYear.length} salary changes this year)</p>
+                  )}
+                </div>
+                <button
+                  onClick={() => setExpandedDev(expandedDev === dev.id ? null : dev.id)}
+                  className="text-indigo-600 text-sm font-medium hover:underline"
+                >
+                  {expandedDev === dev.id ? 'Collapse' : 'Edit'}
+                </button>
+              </div>
+              {expandedDev === dev.id && (
+                <>
+                  <SalaryEditForm dev={dev} year={year} salary_entries={salary_entries} refresh={refresh} onDone={() => setExpandedDev(null)} />
+                  {salariesForYear.length > 1 && (
+                    <div className="mt-3 pt-3 border-t border-slate-200">
+                      <p className="text-xs font-medium text-slate-600 mb-2">Salary Timeline:</p>
+                      <div className="space-y-1">
+                        {salariesForYear.map((sal, idx) => (
+                          <div key={sal.id} className="text-xs text-slate-600 flex justify-between">
+                            <span>{MONTH_NAMES_SHORT[Number(sal.start_month) - 1]} (Month {sal.start_month}): {fmtEUR2(Number(sal.monthly_rate))}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+function SalaryEditForm({
+  dev, year, salary_entries, refresh, onDone,
+}: {
+  dev: Developer;
+  year: Year;
+  salary_entries: DeveloperSalaryEntry[];
+  refresh: () => Promise<void>;
+  onDone: () => void;
+}) {
+  const existing = salary_entries.find((s) => s.developer_id === dev.id && s.year === year.year);
+  const [rate, setRate] = useState(existing ? Number(existing.monthly_rate) : Number(dev.monthly_rate));
+  const [startMonth, setStartMonth] = useState(existing ? Number(existing.start_month) : 1);
+  const [saving, setSaving] = useState(false);
+
+  const save = async () => {
+    if (rate < 0 || startMonth < 1 || startMonth > 12) { alert('Invalid rate or start month'); return; }
+    setSaving(true);
+    try {
+      await api.saveSalaryEntry({
+        id: existing?.id,
+        developer_id: dev.id,
+        year: year.year,
+        start_month: startMonth,
+        monthly_rate: rate,
+      });
+      await refresh();
+      onDone();
+    } catch (error) {
+      alert(error instanceof Error ? error.message : 'Failed to save');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const deleteSalary = async () => {
+    if (!existing) return;
+    if (!confirm('Delete this salary override?')) return;
+    try {
+      await api.deleteSalaryEntry(existing.id);
+      await refresh();
+      onDone();
+    } catch (error) {
+      alert(error instanceof Error ? error.message : 'Failed to delete');
+    }
+  };
+
+  const MONTH_NAMES_SHORT = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+  return (
+    <div className="mt-3 pt-3 border-t border-slate-200 space-y-2">
+      <div>
+        <label className="block text-xs font-medium text-slate-500 mb-1">Monthly Rate (€)</label>
+        <input
+          type="number"
+          min={0}
+          step={50}
+          value={rate}
+          onChange={(e) => setRate(parseFloat(e.target.value) || 0)}
+          className="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
+        />
+      </div>
+      <div>
+        <label className="block text-xs font-medium text-slate-500 mb-1">Effective Starting</label>
+        <select
+          value={startMonth}
+          onChange={(e) => setStartMonth(parseInt(e.target.value) || 1)}
+          className="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
+        >
+          {MONTH_NAMES_SHORT.map((m, i) => (
+            <option key={i + 1} value={i + 1}>{m} (Month {i + 1})</option>
+          ))}
+        </select>
+      </div>
+      <div className="flex gap-2 justify-end">
+        <button
+          onClick={onDone}
+          className="px-3 py-1.5 rounded-lg text-slate-600 hover:bg-slate-100 text-sm font-medium"
+        >
+          Cancel
+        </button>
+        {existing && (
+          <button
+            onClick={deleteSalary}
+            className="px-3 py-1.5 rounded-lg text-red-600 hover:bg-red-50 text-sm font-medium"
+          >
+            Delete
+          </button>
+        )}
+        <button
+          onClick={save}
+          disabled={saving}
+          className="px-3 py-1.5 rounded-lg bg-indigo-600 text-white text-sm font-medium hover:bg-indigo-700 disabled:opacity-50 flex items-center gap-1"
+        >
+          <Check className="h-4 w-4" /> Save
+        </button>
+      </div>
+    </div>
+  );
+}
+
+/* ---------- Extra Payments Section ---------- */
+function ExtraPaymentsSection({
+  year, developers, extra_payments, refresh,
+}: {
+  year: Year;
+  developers: Developer[];
+  extra_payments: ExtraPayment[];
+  refresh: () => Promise<void>;
+}) {
+  const [showForm, setShowForm] = useState(false);
+
+  const yearPayments = extra_payments.filter((p) => p.year === year.year);
+  const totalExtra = yearPayments.reduce((sum, p) => sum + Number(p.amount), 0);
+
+  return (
+    <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-5">
+      <h3 className="font-semibold text-slate-900 mb-4">Extra Payments for {year.year}</h3>
+      <div className="space-y-3">
+        {yearPayments.length === 0 ? (
+          <p className="text-sm text-slate-500 italic">No extra payments</p>
+        ) : (
+          <>
+            {yearPayments.map((payment) => {
+              const dev = developers.find((d) => d.id === payment.developer_id);
+              return (
+                <div key={payment.id} className="flex items-center justify-between border border-slate-200 rounded-lg p-3">
+                  <div>
+                    <p className="font-medium text-slate-800">{dev?.name}</p>
+                    <p className="text-xs text-slate-500">{payment.description || '(no description)'}</p>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <p className="font-medium text-slate-800">{fmtEUR2(Number(payment.amount))}</p>
+                    <button
+                      onClick={async () => {
+                        if (confirm('Delete this payment?')) {
+                          await api.deleteExtraPayment(payment.id);
+                          await refresh();
+                        }
+                      }}
+                      className="text-slate-400 hover:text-red-600 p-1"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+            <div className="mt-3 pt-3 border-t border-slate-200 flex justify-between">
+              <span className="font-medium text-slate-700">Total Extra</span>
+              <span className="font-semibold text-slate-900">{fmtEUR2(totalExtra)}</span>
+            </div>
+          </>
+        )}
+      </div>
+      <button
+        onClick={() => setShowForm(!showForm)}
+        className="mt-4 w-full flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-slate-100 text-slate-700 text-sm font-medium hover:bg-slate-200"
+      >
+        <Plus className="h-4 w-4" /> Add Extra Payment
+      </button>
+      {showForm && (
+        <ExtraPaymentForm year={year} developers={developers} refresh={refresh} onDone={() => setShowForm(false)} />
+      )}
+    </div>
+  );
+}
+
+function ExtraPaymentForm({
+  year, developers, refresh, onDone,
+}: {
+  year: Year;
+  developers: Developer[];
+  refresh: () => Promise<void>;
+  onDone: () => void;
+}) {
+  const [devId, setDevId] = useState(developers[0]?.id ?? '');
+  const [amount, setAmount] = useState(0);
+  const [desc, setDesc] = useState('');
+  const [saving, setSaving] = useState(false);
+
+  const save = async () => {
+    if (!devId || amount <= 0) { alert('Select developer and enter amount'); return; }
+    setSaving(true);
+    try {
+      await api.saveExtraPayment({
+        developer_id: devId,
+        year: year.year,
+        amount,
+        description: desc,
+      });
+      await refresh();
+      onDone();
+    } catch (error) {
+      alert(error instanceof Error ? error.message : 'Failed to save');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className="mt-3 pt-3 border-t border-slate-200 space-y-2">
+      <div>
+        <label className="block text-xs font-medium text-slate-500 mb-1">Developer</label>
+        <select
+          value={devId}
+          onChange={(e) => setDevId(e.target.value)}
+          className="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
+        >
+          {developers.map((d) => (
+            <option key={d.id} value={d.id}>{d.name}</option>
+          ))}
+        </select>
+      </div>
+      <div>
+        <label className="block text-xs font-medium text-slate-500 mb-1">Amount (€)</label>
+        <input
+          type="number"
+          min={0}
+          step={50}
+          value={amount}
+          onChange={(e) => setAmount(parseFloat(e.target.value) || 0)}
+          className="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
+        />
+      </div>
+      <div>
+        <label className="block text-xs font-medium text-slate-500 mb-1">Description (optional)</label>
+        <input
+          type="text"
+          value={desc}
+          onChange={(e) => setDesc(e.target.value)}
+          placeholder="e.g. Annual bonus, extra project payment"
+          className="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
+        />
+      </div>
+      <div className="flex gap-2 justify-end">
+        <button
+          onClick={onDone}
+          className="px-3 py-1.5 rounded-lg text-slate-600 hover:bg-slate-100 text-sm font-medium"
+        >
+          Cancel
+        </button>
+        <button
+          onClick={save}
+          disabled={saving}
+          className="px-3 py-1.5 rounded-lg bg-indigo-600 text-white text-sm font-medium hover:bg-indigo-700 disabled:opacity-50 flex items-center gap-1"
+        >
+          <Check className="h-4 w-4" /> Add
+        </button>
+      </div>
     </div>
   );
 }

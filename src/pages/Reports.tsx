@@ -1,24 +1,26 @@
 import { useMemo, useState } from 'react';
-import type { Allocation, Developer, Project, Year } from '@/lib/types';
+import type { Allocation, Developer, Project, Year, DeveloperSalaryEntry, ExtraPayment } from '@/lib/types';
 import { MONTH_NAMES, QUARTERS } from '@/lib/types';
 import {
   devMonthTotal, devQuarterlyFTE, projectMonthFTE, projectTotalPT,
-  projectTotalBudget, projectWeightedRate,
+  projectTotalBudget, projectWeightedRate, devYearlySpending,
 } from '@/lib/calc';
 import { fmtEUR, fmtNum, fmtFTE, fmtPct } from '@/lib/format';
 import { PageHeader } from '@/components/PageHeader';
-import { Download, User, FolderKanban } from 'lucide-react';
+import { Download, User, FolderKanban, DollarSign } from 'lucide-react';
 
 interface ReportsProps {
   year: Year;
   developers: Developer[];
   projects: Project[];
   allocations: Allocation[];
+  salary_entries: DeveloperSalaryEntry[];
+  extra_payments: ExtraPayment[];
 }
 
-type View = 'developer' | 'project';
+type View = 'developer' | 'project' | 'spending';
 
-export function Reports({ year, developers, projects, allocations }: ReportsProps) {
+export function Reports({ year, projects, developers, allocations, salary_entries, extra_payments }: ReportsProps) {
   const [view, setView] = useState<View>('developer');
 
   return (
@@ -44,14 +46,24 @@ export function Reports({ year, developers, projects, allocations }: ReportsProp
             >
               <FolderKanban className="h-4 w-4" /> Project View
             </button>
+            <button
+              onClick={() => setView('spending')}
+              className={`flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium ${
+                view === 'spending' ? 'bg-indigo-600 text-white' : 'bg-white text-slate-600 hover:bg-slate-50'
+              }`}
+            >
+              <DollarSign className="h-4 w-4" /> Spending View
+            </button>
           </div>
         }
       />
 
       {view === 'developer' ? (
         <DeveloperView year={year} developers={developers} allocations={allocations} />
+      ) : view === 'project' ? (
+        <ProjectView year={year} projects={projects} developers={developers} allocations={allocations} salary_entries={salary_entries} extra_payments={extra_payments} />
       ) : (
-        <ProjectView year={year} projects={projects} developers={developers} allocations={allocations} />
+        <SpendingView year={year} developers={developers} salary_entries={salary_entries} extra_payments={extra_payments} allocations={allocations} />
       )}
     </div>
   );
@@ -155,12 +167,14 @@ function DeveloperView({
 
 /* ---------- Project View ---------- */
 function ProjectView({
-  year, projects, developers, allocations,
+  year, projects, developers, allocations, salary_entries, extra_payments,
 }: {
   year: Year;
   projects: Project[];
   developers: Developer[];
   allocations: Allocation[];
+  salary_entries: DeveloperSalaryEntry[];
+  extra_payments: ExtraPayment[];
 }) {
   const rows = useMemo(
     () =>
@@ -168,11 +182,11 @@ function ProjectView({
         const monthly = MONTH_NAMES.map((_, i) => projectMonthFTE(allocations, p.id, year.id, i + 1));
         const totalFTE = monthly.reduce((s, v) => s + v, 0);
         const totalPT = projectTotalPT(allocations, p.id, year.id, year.working_days_per_month);
-        const rate = projectWeightedRate(allocations, p.id, year.id, developers);
-        const budget = projectTotalBudget(allocations, p.id, year, developers);
+        const rate = projectWeightedRate(allocations, p.id, year.id, developers, year, salary_entries);
+        const budget = projectTotalBudget(allocations, p.id, year, developers, salary_entries, extra_payments);
         return { proj: p, monthly, totalFTE, totalPT, rate, budget };
       }),
-    [projects, allocations, year, developers]
+    [projects, allocations, year, developers, salary_entries, extra_payments]
   );
 
   const exportCSV = () => {
@@ -262,4 +276,89 @@ function downloadCSV(filename: string, content: string) {
   a.download = filename;
   a.click();
   URL.revokeObjectURL(url);
+}
+
+/* ---------- Spending View ---------- */
+function SpendingView({
+  year, developers, salary_entries, extra_payments, allocations,
+}: {
+  year: Year;
+  developers: Developer[];
+  salary_entries: DeveloperSalaryEntry[];
+  extra_payments: ExtraPayment[];
+  allocations: Allocation[];
+}) {
+  const rows = useMemo(
+    () =>
+      developers.map((d) => {
+        const spending = devYearlySpending(d.id, year, salary_entries, developers, extra_payments, allocations);
+        return {
+          dev: d,
+          salary: spending.salary,
+          extraPayments: spending.extraPayments,
+          total: spending.total,
+        };
+      }),
+    [developers, salary_entries, extra_payments, year, allocations]
+  );
+
+  const totalSalary = rows.reduce((s, r) => s + r.salary, 0);
+  const totalExtra = rows.reduce((s, r) => s + r.extraPayments, 0);
+  const totalSpending = rows.reduce((s, r) => s + r.total, 0);
+
+  const exportCSV = () => {
+    const header = ['Developer', 'Role', 'Annual Salary (EUR)', 'Extra Payments (EUR)', 'Total (EUR)'];
+    const lines = rows.map((r) =>
+      [r.dev.name, r.dev.role, r.salary.toFixed(2), r.extraPayments.toFixed(2), r.total.toFixed(2)].join(',')
+    );
+    downloadCSV(`spending-report-${year.year}.csv`, [header.join(','), ...lines].join('\n'));
+  };
+
+  return (
+    <div className="bg-white rounded-xl border border-slate-200 shadow-sm">
+      <div className="px-5 py-4 border-b border-slate-200 flex items-center justify-between">
+        <h3 className="font-semibold text-slate-900">Employee Spending — {year.year}</h3>
+        <button onClick={exportCSV}
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-900 text-white text-sm font-medium hover:bg-slate-800">
+          <Download className="h-4 w-4" /> Export CSV
+        </button>
+      </div>
+      <div className="overflow-x-auto">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="bg-slate-50 text-slate-600">
+              <th className="sticky left-0 z-10 bg-slate-50 px-5 py-3 text-left font-medium">Developer</th>
+              <th className="px-5 py-3 text-right font-medium">Annual Salary</th>
+              <th className="px-5 py-3 text-right font-medium">Extra Payments</th>
+              <th className="px-5 py-3 text-right font-medium">Total Spending</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-slate-100">
+            {rows.map((r) => (
+              <tr key={r.dev.id} className="hover:bg-slate-50/50">
+                <td className="sticky left-0 z-10 bg-white px-5 py-2.5">
+                  <div className="font-medium text-slate-800">{r.dev.name}</div>
+                  <div className="text-xs text-slate-400">{r.dev.role}</div>
+                </td>
+                <td className="px-5 py-2.5 text-right text-slate-700">{fmtEUR(r.salary)}</td>
+                <td className="px-5 py-2.5 text-right text-slate-700">{r.extraPayments > 0 ? fmtEUR(r.extraPayments) : '—'}</td>
+                <td className="px-5 py-2.5 text-right font-semibold text-slate-900">{fmtEUR(r.total)}</td>
+              </tr>
+            ))}
+          </tbody>
+          <tfoot>
+            <tr className="bg-slate-50 font-semibold text-slate-800 border-t-2 border-slate-200">
+              <td className="sticky left-0 z-10 bg-slate-50 px-5 py-3">Total</td>
+              <td className="px-5 py-3 text-right">{fmtEUR(totalSalary)}</td>
+              <td className="px-5 py-3 text-right">{fmtEUR(totalExtra)}</td>
+              <td className="px-5 py-3 text-right">{fmtEUR(totalSpending)}</td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+      <div className="px-5 py-3 text-xs text-slate-400">
+        Annual Salary = sum of monthly rates for all 12 months (accounts for mid-year rate changes). Extra Payments = bonuses and special payments for the year.
+      </div>
+    </div>
+  );
 }

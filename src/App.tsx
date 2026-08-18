@@ -58,6 +58,8 @@ function App() {
               developers={data.developers}
               projects={data.projects}
               allocations={data.allocations}
+              salary_entries={data.salary_entries}
+              extra_payments={data.extra_payments}
             />
           ) : page === 'master' ? (
             <MasterData
@@ -65,6 +67,8 @@ function App() {
               activeYear={data.activeYear}
               developers={data.developers}
               projects={data.projects}
+              salary_entries={data.salary_entries}
+              extra_payments={data.extra_payments}
               refresh={data.refresh}
             />
           ) : page === 'allocation' ? (
@@ -81,6 +85,8 @@ function App() {
               developers={data.developers}
               projects={data.projects}
               allocations={data.allocations}
+              salary_entries={data.salary_entries}
+              extra_payments={data.extra_payments}
             />
           )}
         </div>

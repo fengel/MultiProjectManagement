@@ -17,6 +17,8 @@ const defaultState = {
     { id: 'seed-proj-2', code: 'PRJ-02', name: 'Payment Gateway Integration', status: 'Active', sort_order: 2 },
   ],
   allocations: [],
+  salary_entries: [],
+  extra_payments: [],
 };
 
 function getFilePath(targetPath) {
@@ -48,6 +50,8 @@ async function readStore(filePath) {
       developers: Array.isArray(parsed.developers) ? parsed.developers : defaultState.developers,
       projects: Array.isArray(parsed.projects) ? parsed.projects : defaultState.projects,
       allocations: Array.isArray(parsed.allocations) ? parsed.allocations : defaultState.allocations,
+      salary_entries: Array.isArray(parsed.salary_entries) ? parsed.salary_entries : defaultState.salary_entries,
+      extra_payments: Array.isArray(parsed.extra_payments) ? parsed.extra_payments : defaultState.extra_payments,
     };
   } catch {
     return { ...defaultState };
@@ -209,5 +213,77 @@ export function createDataStore(targetPath) {
       await writeStore(filePath, state);
       return year;
     },
+
+    async getSalaryEntries() {
+      const state = await readStore(filePath);
+      return state.salary_entries || [];
+    },
+
+    async saveSalaryEntry(entry) {
+      const state = await readStore(filePath);
+      const nextRecord = {
+        id: entry.id ?? `sal-${Date.now()}-${Math.random().toString(16).slice(2)}`,
+        developer_id: entry.developer_id,
+        year: Number(entry.year ?? 0),
+        start_month: Number(entry.start_month ?? 1),
+        monthly_rate: Number(entry.monthly_rate ?? 0),
+      };
+
+      const index = state.salary_entries.findIndex(
+        (item) => item.id === entry.id || (
+          item.developer_id === nextRecord.developer_id &&
+          item.year === nextRecord.year &&
+          item.start_month === nextRecord.start_month
+        )
+      );
+
+      if (index >= 0) {
+        state.salary_entries[index] = { ...state.salary_entries[index], ...nextRecord };
+      } else {
+        state.salary_entries.push(nextRecord);
+      }
+
+      await writeStore(filePath, state);
+      return nextRecord;
+    },
+
+    async deleteSalaryEntry(id) {
+      const state = await readStore(filePath);
+      state.salary_entries = state.salary_entries.filter((item) => item.id !== id);
+      await writeStore(filePath, state);
+    },
+
+    async getExtraPayments() {
+      const state = await readStore(filePath);
+      return state.extra_payments || [];
+    },
+
+    async saveExtraPayment(payment) {
+      const state = await readStore(filePath);
+      const nextRecord = {
+        id: payment.id ?? `pay-${Date.now()}-${Math.random().toString(16).slice(2)}`,
+        developer_id: payment.developer_id,
+        year: Number(payment.year ?? 0),
+        amount: Number(payment.amount ?? 0),
+        description: payment.description ?? '',
+      };
+
+      const index = state.extra_payments.findIndex((item) => item.id === payment.id);
+      if (index >= 0) {
+        state.extra_payments[index] = { ...state.extra_payments[index], ...nextRecord };
+      } else {
+        state.extra_payments.push(nextRecord);
+      }
+
+      await writeStore(filePath, state);
+      return nextRecord;
+    },
+
+    async deleteExtraPayment(id) {
+      const state = await readStore(filePath);
+      state.extra_payments = state.extra_payments.filter((item) => item.id !== id);
+      await writeStore(filePath, state);
+    },
   };
 }
+

@@ -30,7 +30,9 @@ const server = http.createServer(async (req, res) => {
       const developers = await store.getDevelopers();
       const projects = await store.getProjects();
       const allocations = await store.getAllocations();
-      sendJson(res, 200, { years, developers, projects, allocations });
+      const salary_entries = await store.getSalaryEntries();
+      const extra_payments = await store.getExtraPayments();
+      sendJson(res, 200, { years, developers, projects, allocations, salary_entries, extra_payments });
       return;
     }
 
@@ -93,6 +95,34 @@ const server = http.createServer(async (req, res) => {
     if (path.startsWith('/api/allocations/') && req.method === 'DELETE') {
       const id = path.split('/').pop();
       await store.deleteAllocation(id);
+      sendJson(res, 200, { ok: true });
+      return;
+    }
+
+    if (path === '/api/salary-entries' && req.method === 'POST') {
+      const body = await readBody(req);
+      const entry = await store.saveSalaryEntry(body);
+      sendJson(res, 200, entry);
+      return;
+    }
+
+    if (path.startsWith('/api/salary-entries/') && req.method === 'DELETE') {
+      const id = path.split('/').pop();
+      await store.deleteSalaryEntry(id);
+      sendJson(res, 200, { ok: true });
+      return;
+    }
+
+    if (path === '/api/extra-payments' && req.method === 'POST') {
+      const body = await readBody(req);
+      const payment = await store.saveExtraPayment(body);
+      sendJson(res, 200, payment);
+      return;
+    }
+
+    if (path.startsWith('/api/extra-payments/') && req.method === 'DELETE') {
+      const id = path.split('/').pop();
+      await store.deleteExtraPayment(id);
       sendJson(res, 200, { ok: true });
       return;
     }

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { api } from '@/lib/api';
-import type { Allocation, Developer, Project, Year } from '@/lib/types';
+import type { Allocation, Developer, Project, Year, DeveloperSalaryEntry, ExtraPayment } from '@/lib/types';
 
 export interface DataState {
   years: Year[];
@@ -8,6 +8,8 @@ export interface DataState {
   developers: Developer[];
   projects: Project[];
   allocations: Allocation[];
+  salary_entries: DeveloperSalaryEntry[];
+  extra_payments: ExtraPayment[];
   loading: boolean;
   error: string | null;
   refresh: () => Promise<void>;
@@ -18,6 +20,8 @@ export function useData(): DataState {
   const [developers, setDevelopers] = useState<Developer[]>([]);
   const [projects, setProjects] = useState<Project[]>([]);
   const [allocations, setAllocations] = useState<Allocation[]>([]);
+  const [salary_entries, setSalaryEntries] = useState<DeveloperSalaryEntry[]>([]);
+  const [extra_payments, setExtraPayments] = useState<ExtraPayment[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -30,6 +34,8 @@ export function useData(): DataState {
       setDevelopers(payload.developers as Developer[]);
       setProjects(payload.projects as Project[]);
       setAllocations(payload.allocations as Allocation[]);
+      setSalaryEntries(payload.salary_entries as DeveloperSalaryEntry[]);
+      setExtraPayments(payload.extra_payments as ExtraPayment[]);
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Failed to load data');
     } finally {
@@ -49,6 +55,8 @@ export function useData(): DataState {
     developers,
     projects,
     allocations,
+    salary_entries,
+    extra_payments,
     loading,
     error,
     refresh,

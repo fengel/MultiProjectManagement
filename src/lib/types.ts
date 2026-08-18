@@ -31,6 +31,22 @@ export interface Allocation {
   allocation_pct: number;
 }
 
+export interface DeveloperSalaryEntry {
+  id: string;
+  developer_id: string;
+  year: number;
+  start_month: number; // 1-12
+  monthly_rate: number;
+}
+
+export interface ExtraPayment {
+  id: string;
+  developer_id: string;
+  year: number;
+  amount: number;
+  description?: string;
+}
+
 export const MONTH_NAMES = [
   'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
   'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',

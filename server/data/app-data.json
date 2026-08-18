@@ -10,9 +10,9 @@
   "developers": [
     {
       "id": "seed-dev-1",
-      "name": "Anna Schmidt",
-      "role": "Frontend Engineer",
-      "monthly_rate": 7000,
+      "name": "Nenad",
+      "role": "Knowledge Engineer",
+      "monthly_rate": 6795,
       "target_fte": 1,
       "sort_order": 3
     },
@@ -29,9 +29,9 @@
     {
       "id": "seed-proj-1",
       "code": "PRJ-01",
-      "name": "Customer Portal Redesign",
+      "name": "HUMAN-DECISION",
       "status": "Active",
-      "sort_order": 1
+      "sort_order": 4
     },
     {
       "id": "seed-proj-2",
@@ -55,15 +55,7 @@
       "project_id": "seed-proj-1",
       "year_id": "seed-year-2026",
       "month": 1,
-      "allocation_pct": 0.1
-    },
-    {
-      "id": "alloc-1787066922335-2cdbf1f986af98",
-      "developer_id": "seed-dev-1",
-      "project_id": "seed-proj-2",
-      "year_id": "seed-year-2026",
-      "month": 1,
-      "allocation_pct": 0.9
+      "allocation_pct": 1
     },
     {
       "id": "alloc-1787066977915-506b3d40b8bea8",
@@ -80,6 +72,71 @@
       "year_id": "seed-year-2026",
       "month": 1,
       "allocation_pct": 0.2
+    },
+    {
+      "id": "alloc-1787070655176-a9c45d0c2c9db",
+      "developer_id": "seed-dev-1",
+      "project_id": "seed-proj-1",
+      "year_id": "seed-year-2026",
+      "month": 2,
+      "allocation_pct": 1
+    },
+    {
+      "id": "alloc-1787070663349-2f3a7c273c7b48",
+      "developer_id": "seed-dev-1",
+      "project_id": "seed-proj-1",
+      "year_id": "seed-year-2026",
+      "month": 3,
+      "allocation_pct": 1
+    },
+    {
+      "id": "alloc-1787070666449-28d6c95c5156",
+      "developer_id": "seed-dev-1",
+      "project_id": "seed-proj-1",
+      "year_id": "seed-year-2026",
+      "month": 4,
+      "allocation_pct": 1
+    },
+    {
+      "id": "alloc-1787070668552-630098c9d85c98",
+      "developer_id": "seed-dev-1",
+      "project_id": "seed-proj-1",
+      "year_id": "seed-year-2026",
+      "month": 5,
+      "allocation_pct": 1
+    },
+    {
+      "id": "alloc-1787070671303-9ca37baeea1f9",
+      "developer_id": "seed-dev-1",
+      "project_id": "seed-proj-1",
+      "year_id": "seed-year-2026",
+      "month": 6,
+      "allocation_pct": 1
+    },
+    {
+      "id": "alloc-1787070673984-f41cb6177e5508",
+      "developer_id": "seed-dev-1",
+      "project_id": "seed-proj-1",
+      "year_id": "seed-year-2026",
+      "month": 7,
+      "allocation_pct": 1
+    },
+    {
+      "id": "alloc-1787070678796-2e977c8c510aa8",
+      "developer_id": "seed-dev-1",
+      "project_id": "seed-proj-1",
+      "year_id": "seed-year-2026",
+      "month": 8,
+      "allocation_pct": 1
     }
-  ]
+  ],
+  "salary_entries": [
+    {
+      "id": "sal-1787069736994-81c7a1a1e107b8",
+      "developer_id": "seed-dev-1",
+      "year": 2026,
+      "monthly_rate": 7300
+    }
+  ],
+  "extra_payments": []
 }

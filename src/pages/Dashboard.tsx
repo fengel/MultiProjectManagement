@@ -7,7 +7,7 @@ import {
   CalendarDays, Users, FolderKanban, Wallet, Clock, Euro,
   TrendingUp, AlertTriangle,
 } from 'lucide-react';
-import type { Allocation, Developer, Project, Year } from '@/lib/types';
+import type { Allocation, Developer, Project, Year, DeveloperSalaryEntry, ExtraPayment } from '@/lib/types';
 import {
   totalBudget, totalPlannedPT, avgMonthlyRate, quarterlyStats, fullYearStat,
   monthlyCapacityVsPlanned, projectTotalPT,
@@ -20,6 +20,8 @@ interface DashboardProps {
   developers: Developer[];
   projects: Project[];
   allocations: Allocation[];
+  salary_entries: DeveloperSalaryEntry[];
+  extra_payments: ExtraPayment[];
 }
 
 interface KpiCardProps {
@@ -53,10 +55,10 @@ function utilClass(u: number): string {
   return 'bg-emerald-100 text-emerald-700';
 }
 
-export function Dashboard({ year, developers, projects, allocations }: DashboardProps) {
+export function Dashboard({ year, developers, projects, allocations, salary_entries, extra_payments }: DashboardProps) {
   const budget = useMemo(
-    () => totalBudget(allocations, projects, year, developers),
-    [allocations, projects, year, developers]
+    () => totalBudget(allocations, projects, year, developers, salary_entries, extra_payments),
+    [allocations, projects, year, developers, salary_entries, extra_payments]
   );
   const plannedPT = useMemo(
     () => totalPlannedPT(allocations, year.id, year.working_days_per_month),
