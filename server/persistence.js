@@ -13,6 +13,7 @@ const defaultState = {
     { id: 'seed-dev-2', name: 'Ben Müller', role: 'Backend Engineer', monthly_rate: 15200, target_fte: 1, sort_order: 2 },
   ],
   projects: [
+    { id: 'seed-proj-nfdi4ing', code: 'NFDI4ING', name: 'NFDI4ING', status: 'Active', sort_order: 0 },
     { id: 'seed-proj-1', code: 'PRJ-01', name: 'Customer Portal Redesign', status: 'Active', sort_order: 1 },
     { id: 'seed-proj-2', code: 'PRJ-02', name: 'Payment Gateway Integration', status: 'Active', sort_order: 2 },
   ],
@@ -20,6 +21,46 @@ const defaultState = {
   salary_entries: [],
   extra_payments: [],
 };
+
+function normalizeProjects(projects) {
+  const normalized = projects.map((project) => ({ ...project }));
+  let parent = normalized.find((project) => project.code === 'NFDI4ING' || project.name === 'NFDI4ING');
+
+  if (!parent && normalized.some((project) => project.name?.toUpperCase().startsWith('NFDI4ING'))) {
+    parent = {
+      id: 'seed-proj-nfdi4ing',
+      code: 'NFDI4ING',
+      name: 'NFDI4ING',
+      status: 'Active',
+      sort_order: 0,
+    };
+    normalized.unshift(parent);
+  }
+
+  const withNfdiParents = parent
+    ? normalized.map((project) => (
+    project.id === parent.id
+      ? { ...project, parent_project_id: null }
+      : project.name?.toUpperCase().startsWith('NFDI4ING')
+        ? { ...project, parent_project_id: project.parent_project_id ?? parent.id }
+        : project
+    ))
+    : normalized;
+
+  const workpackageParentIds = [...new Set(
+    withNfdiParents
+      .filter((project) => /^WP\d+$/i.test(project.code ?? '') && project.parent_project_id)
+      .map((project) => project.parent_project_id)
+  )];
+
+  if (workpackageParentIds.length !== 1) return withNfdiParents;
+
+  return withNfdiParents.map((project) => (
+    /^WP\d+$/i.test(project.code ?? '') && !project.parent_project_id
+      ? { ...project, parent_project_id: workpackageParentIds[0] }
+      : project
+  ));
+}
 
 function getFilePath(targetPath) {
   if (targetPath) return targetPath;
@@ -48,7 +89,7 @@ async function readStore(filePath) {
       ...parsed,
       years: Array.isArray(parsed.years) ? parsed.years : defaultState.years,
       developers: Array.isArray(parsed.developers) ? parsed.developers : defaultState.developers,
-      projects: Array.isArray(parsed.projects) ? parsed.projects : defaultState.projects,
+      projects: normalizeProjects(Array.isArray(parsed.projects) ? parsed.projects : defaultState.projects),
       allocations: Array.isArray(parsed.allocations) ? parsed.allocations : defaultState.allocations,
       salary_entries: Array.isArray(parsed.salary_entries) ? parsed.salary_entries : defaultState.salary_entries,
       extra_payments: Array.isArray(parsed.extra_payments) ? parsed.extra_payments : defaultState.extra_payments,
@@ -111,12 +152,23 @@ export function createDataStore(targetPath) {
 
     async saveProject(project) {
       const state = await readStore(filePath);
+      const siblingParentIds = [...new Set(
+        state.projects
+          .filter((item) => /^WP\d+$/i.test(item.code) && item.parent_project_id)
+          .map((item) => item.parent_project_id)
+      )];
+      const inferredParentProjectId = project.parent_project_id ?? (
+        /^WP\d+$/i.test(project.code ?? '') && siblingParentIds.length === 1
+          ? siblingParentIds[0]
+          : null
+      );
       const nextRecord = {
         id: project.id ?? `proj-${Date.now()}-${Math.random().toString(16).slice(2)}`,
         code: project.code,
         name: project.name,
         status: project.status ?? 'Active',
         sort_order: Number(project.sort_order ?? 0),
+        parent_project_id: inferredParentProjectId,
       };
 
       const index = state.projects.findIndex((item) => item.id === project.id);
@@ -128,6 +180,13 @@ export function createDataStore(targetPath) {
 
       await writeStore(filePath, state);
       return nextRecord;
+    },
+
+    async saveWorkpackage(parentProjectId, workpackage) {
+      return this.saveProject({
+        ...workpackage,
+        parent_project_id: parentProjectId,
+      });
     },
 
     async upsertAllocation(allocation) {
@@ -174,6 +233,9 @@ export function createDataStore(targetPath) {
     async deleteProject(id) {
       const state = await readStore(filePath);
       state.projects = state.projects.filter((item) => item.id !== id);
+      state.projects = state.projects.map((item) => (
+        item.parent_project_id === id ? { ...item, parent_project_id: null } : item
+      ));
       state.allocations = state.allocations.filter((item) => item.project_id !== id);
       await writeStore(filePath, state);
     },

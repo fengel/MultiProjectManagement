@@ -50,6 +50,14 @@ const server = http.createServer(async (req, res) => {
       return;
     }
 
+    const workpackageMatch = path.match(/^\/api\/projects\/([^/]+)\/workpackages$/);
+    if (workpackageMatch && req.method === 'POST') {
+      const body = await readBody(req);
+      const workpackage = await store.saveWorkpackage(workpackageMatch[1], body);
+      sendJson(res, 200, workpackage);
+      return;
+    }
+
     if (path === '/api/projects' && req.method === 'POST') {
       const body = await readBody(req);
       const project = await store.saveProject(body);

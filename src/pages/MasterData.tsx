@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
 import { api } from '@/lib/api';
+import { getProjectHierarchy, getWorkpackages } from '@/lib/types';
 import type { Developer, Project, Year, DeveloperSalaryEntry, ExtraPayment } from '@/lib/types';
 import { fmtEUR2 } from '@/lib/format';
 import { PageHeader } from '@/components/PageHeader';
-import { Plus, Pencil, Trash2, X, Check, CalendarPlus } from 'lucide-react';
+import { Plus, Pencil, Trash2, X, Check, CalendarPlus, ChevronDown, ChevronRight } from 'lucide-react';
 
 interface MasterDataProps {
   years: Year[];
@@ -21,9 +22,11 @@ export function MasterData({ years, activeYear, developers, projects, salary_ent
   const [modal, setModal] = useState<ModalType>(null);
   const [editingDev, setEditingDev] = useState<Developer | null>(null);
   const [editingProj, setEditingProj] = useState<Project | null>(null);
+  const [newProjectParentId, setNewProjectParentId] = useState<string | null>(null);
   const [workingDays, setWorkingDays] = useState(activeYear?.working_days_per_month ?? 20);
   const [newYearName, setNewYearName] = useState('');
   const [savingYear, setSavingYear] = useState(false);
+  const [collapsedProjectIds, setCollapsedProjectIds] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     setWorkingDays(activeYear?.working_days_per_month ?? 20);
@@ -82,6 +85,15 @@ export function MasterData({ years, activeYear, developers, projects, salary_ent
     } catch (error) {
       alert(error instanceof Error ? error.message : 'Failed to delete project');
     }
+  };
+
+  const toggleProject = (projectId: string) => {
+    setCollapsedProjectIds((current) => {
+      const next = new Set(current);
+      if (next.has(projectId)) next.delete(projectId);
+      else next.add(projectId);
+      return next;
+    });
   };
 
   return (
@@ -222,7 +234,7 @@ export function MasterData({ years, activeYear, developers, projects, salary_ent
         <div className="px-5 py-4 border-b border-slate-200 flex items-center justify-between">
           <h3 className="font-semibold text-slate-900">Projects ({projects.length})</h3>
           <button
-            onClick={() => { setEditingProj(null); setModal('project'); }}
+            onClick={() => { setEditingProj(null); setNewProjectParentId(null); setModal('project'); }}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-600 text-white text-sm font-medium hover:bg-indigo-700"
           >
             <Plus className="h-4 w-4" /> Add Project
@@ -235,14 +247,31 @@ export function MasterData({ years, activeYear, developers, projects, salary_ent
                 <th className="px-5 py-3 text-left font-medium">Code</th>
                 <th className="px-5 py-3 text-left font-medium">Name</th>
                 <th className="px-5 py-3 text-left font-medium">Status</th>
+                <th className="px-5 py-3 text-left font-medium">Project / Workpackage</th>
                 <th className="px-5 py-3 text-right font-medium">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
-              {projects.map((p) => (
-                <tr key={p.id} className="hover:bg-slate-50">
-                  <td className="px-5 py-3 font-mono font-medium text-slate-800">{p.code}</td>
-                  <td className="px-5 py-3 text-slate-600">{p.name}</td>
+              {getProjectHierarchy(projects)
+                .filter((p) => !p.parent_project_id || !collapsedProjectIds.has(p.parent_project_id))
+                .map((p) => (
+                <tr key={p.id} className={`hover:bg-slate-50 ${p.parent_project_id ? 'bg-slate-50/60' : ''}`}>
+                  <td className={`px-5 py-3 font-mono ${p.parent_project_id ? 'pl-10 text-sm text-slate-600' : 'font-semibold text-slate-800'}`}>
+                    {!p.parent_project_id && getWorkpackages(projects, p.id).length > 0 && (
+                      <button
+                        onClick={() => toggleProject(p.id)}
+                        className="mr-1 inline-flex rounded p-0.5 text-slate-400 hover:bg-slate-200 hover:text-slate-700"
+                        aria-label={`${collapsedProjectIds.has(p.id) ? 'Expand' : 'Collapse'} workpackages for ${p.name}`}
+                      >
+                        {collapsedProjectIds.has(p.id) ? <ChevronRight className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                      </button>
+                    )}
+                    {p.parent_project_id && <span className="mr-2 text-slate-300">↳</span>}
+                    {p.code}
+                  </td>
+                  <td className={`px-5 py-3 ${p.parent_project_id ? 'pl-10 text-sm text-slate-500' : 'font-medium text-slate-700'}`}>
+                    {p.name}
+                  </td>
                   <td className="px-5 py-3">
                     <span className={`inline-flex px-2 py-0.5 rounded-md text-xs font-medium ${
                       p.status === 'Active' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'
@@ -250,8 +279,24 @@ export function MasterData({ years, activeYear, developers, projects, salary_ent
                       {p.status}
                     </span>
                   </td>
+                  <td className="px-5 py-3 text-slate-500">
+                    {p.parent_project_id
+                      ? `Workpackage of ${projects.find((parent) => parent.id === p.parent_project_id)?.name ?? 'project'}`
+                      : getWorkpackages(projects, p.id).length > 0
+                        ? `${getWorkpackages(projects, p.id).length} workpackages`
+                        : 'Standalone project'}
+                  </td>
                   <td className="px-5 py-3 text-right">
                     <div className="flex items-center justify-end gap-1">
+                      {!p.parent_project_id && (
+                        <button
+                          onClick={() => { setEditingProj(null); setNewProjectParentId(p.id); setModal('project'); }}
+                          className="flex items-center gap-1 px-2 py-1 text-xs font-medium text-indigo-600 hover:bg-indigo-50 rounded"
+                          title={`Add workpackage to ${p.name}`}
+                        >
+                          <Plus className="h-3.5 w-3.5" /> Workpackage
+                        </button>
+                      )}
                       <button
                         onClick={() => { setEditingProj(p); setModal('project'); }}
                         className="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded"
@@ -291,7 +336,10 @@ export function MasterData({ years, activeYear, developers, projects, salary_ent
       )}
       {modal === 'project' && (
         <ProjectModal
+          key={`${editingProj?.id ?? 'new'}-${newProjectParentId ?? 'standalone'}`}
           project={editingProj}
+          projects={projects}
+          initialParentProjectId={newProjectParentId}
           sortOrder={projects.length}
           onClose={() => setModal(null)}
           onSaved={async () => { setModal(null); await refresh(); }}
@@ -684,29 +732,36 @@ function DeveloperModal({
 
 /* ---------- Project Modal ---------- */
 function ProjectModal({
-  project, sortOrder, onClose, onSaved,
+  project, projects, initialParentProjectId, sortOrder, onClose, onSaved,
 }: {
   project: Project | null;
+  projects: Project[];
+  initialParentProjectId: string | null;
   sortOrder: number;
   onClose: () => void;
   onSaved: () => void;
 }) {
+  const parentProject = projects.find((candidate) => candidate.id === (project?.parent_project_id ?? initialParentProjectId));
+  const isWorkpackage = Boolean(parentProject);
   const [code, setCode] = useState(project?.code ?? '');
   const [name, setName] = useState(project?.name ?? '');
   const [status, setStatus] = useState<'Active' | 'Planning'>(project?.status ?? 'Active');
+  const [parentProjectId, setParentProjectId] = useState(project?.parent_project_id ?? initialParentProjectId ?? '');
   const [saving, setSaving] = useState(false);
 
   const save = async () => {
     if (!code.trim() || !name.trim()) { alert('Code and name are required'); return; }
     setSaving(true);
     try {
-      await api.upsertProject({
+      const saveProject = api.upsertProject({
         id: project?.id,
         code: code.trim(),
         name: name.trim(),
         status,
         sort_order: sortOrder + 1,
+        parent_project_id: isWorkpackage ? parentProject?.id : parentProjectId || null,
       });
+      await saveProject;
       onSaved();
     } catch (error) {
       alert(error instanceof Error ? error.message : 'Could not save project');
@@ -716,14 +771,21 @@ function ProjectModal({
   };
 
   return (
-    <ModalShell title={project ? 'Edit Project' : 'Add Project'} onClose={onClose}>
-      <Field label="Project Code">
+    <ModalShell title={isWorkpackage ? (project ? 'Edit Workpackage' : 'Add Workpackage') : (project ? 'Edit Project' : 'Add Project')} onClose={onClose}>
+      {isWorkpackage && parentProject && (
+        <div className="rounded-lg border border-indigo-100 bg-indigo-50 px-3 py-2.5">
+          <div className="text-xs font-medium text-indigo-500">Project</div>
+          <div className="font-medium text-indigo-900">{parentProject.name}</div>
+          <div className="font-mono text-xs text-indigo-600">{parentProject.code} · {parentProject.id}</div>
+        </div>
+      )}
+      <Field label={isWorkpackage ? 'Workpackage ID' : 'Project Code'}>
         <input value={code} onChange={(e) => setCode(e.target.value)}
-          className="modal-input" placeholder="e.g. PRJ-13" />
+          className="modal-input" placeholder={isWorkpackage ? 'e.g. WP2' : 'e.g. PRJ-13'} />
       </Field>
-      <Field label="Project Name">
+      <Field label={isWorkpackage ? 'Workpackage Name' : 'Project Name'}>
         <input value={name} onChange={(e) => setName(e.target.value)}
-          className="modal-input" placeholder="e.g. New CRM System" />
+          className="modal-input" placeholder={isWorkpackage ? 'e.g. Workpackage 2' : 'e.g. New CRM System'} />
       </Field>
       <Field label="Status">
         <select value={status} onChange={(e) => setStatus(e.target.value as 'Active' | 'Planning')}
@@ -732,6 +794,20 @@ function ProjectModal({
           <option value="Planning">Planning</option>
         </select>
       </Field>
+      {!isWorkpackage && <Field label="Parent Project">
+        <select
+          value={parentProjectId}
+          onChange={(e) => setParentProjectId(e.target.value)}
+          className="modal-input"
+        >
+          <option value="">Standalone project</option>
+          {projects
+            .filter((candidate) => candidate.id !== project?.id)
+            .map((candidate) => (
+              <option key={candidate.id} value={candidate.id}>{candidate.code} - {candidate.name}</option>
+            ))}
+        </select>
+      </Field>}
       <ModalActions onSave={save} onCancel={onClose} saving={saving} />
     </ModalShell>
   );

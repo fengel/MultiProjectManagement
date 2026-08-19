@@ -32,6 +32,10 @@ export const api = {
     method: 'POST',
     body: JSON.stringify(project),
   }),
+  createWorkpackage: (parentProjectId: string, workpackage: any) => request(`/projects/${parentProjectId}/workpackages`, {
+    method: 'POST',
+    body: JSON.stringify(workpackage),
+  }),
   deleteProject: (id: string) => request(`/projects/${id}`, { method: 'DELETE' }),
   createYear: (payload: { year: number; workingDaysPerMonth?: number }) => request('/years', {
     method: 'POST',

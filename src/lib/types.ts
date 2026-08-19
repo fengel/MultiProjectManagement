@@ -20,6 +20,34 @@ export interface Project {
   name: string;
   status: 'Active' | 'Planning';
   sort_order: number;
+  parent_project_id?: string | null;
+}
+
+export function getWorkpackages(projects: Project[], projectId: string): Project[] {
+  return projects.filter((project) => project.parent_project_id === projectId);
+}
+
+export function getProjectHierarchy(projects: Project[]): Project[] {
+  const childrenByParent = new Map<string, Project[]>();
+  const roots: Project[] = [];
+
+  projects.forEach((project) => {
+    if (!project.parent_project_id) {
+      roots.push(project);
+      return;
+    }
+
+    const children = childrenByParent.get(project.parent_project_id) ?? [];
+    children.push(project);
+    childrenByParent.set(project.parent_project_id, children);
+  });
+
+  const flatten = (project: Project): Project[] => [
+    project,
+    ...(childrenByParent.get(project.id) ?? []).flatMap(flatten),
+  ];
+
+  return roots.flatMap(flatten);
 }
 
 export interface Allocation {

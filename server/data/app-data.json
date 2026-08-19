@@ -18,34 +18,201 @@
     },
     {
       "id": "seed-dev-2",
-      "name": "Ben Müller",
-      "role": "Backend Engineer",
-      "monthly_rate": 8900,
+      "name": "Aamir",
+      "role": "Full Stack Developer",
+      "monthly_rate": 6500,
       "target_fte": 1,
       "sort_order": 3
+    },
+    {
+      "id": "dev-1787071449804-b3b0b1c56134b8",
+      "name": "Felix",
+      "role": "Management",
+      "monthly_rate": 8600,
+      "target_fte": 1,
+      "sort_order": 4
+    },
+    {
+      "id": "dev-1787119831796-62af0052d16608",
+      "name": "Giray",
+      "role": "Backend Developer",
+      "monthly_rate": 8400,
+      "target_fte": 1,
+      "sort_order": 5
+    },
+    {
+      "id": "dev-1787120110623-6d168c3c0753",
+      "name": "Mirjam",
+      "role": "Backend Developer",
+      "monthly_rate": 6500,
+      "target_fte": 1,
+      "sort_order": 5
+    },
+    {
+      "id": "dev-1787120526877-36e6e035646b98",
+      "name": "Deepan",
+      "role": "Backend-Developer",
+      "monthly_rate": 5200,
+      "target_fte": 1,
+      "sort_order": 6
+    },
+    {
+      "id": "dev-1787120618877-852f66dbd4eba8",
+      "name": "Anette",
+      "role": "Developer",
+      "monthly_rate": 4300,
+      "target_fte": 1,
+      "sort_order": 8
+    },
+    {
+      "id": "dev-1787121384683-5706ff06ba32d8",
+      "name": "Sandeep",
+      "role": "Frontend-Developer",
+      "monthly_rate": 4200,
+      "target_fte": 1,
+      "sort_order": 8
+    },
+    {
+      "id": "dev-1787123546490-7b68b3fe43b71",
+      "name": "Mark",
+      "role": "Fullstack Developer",
+      "monthly_rate": 6300,
+      "target_fte": 1,
+      "sort_order": 9
     }
   ],
   "projects": [
     {
+      "id": "seed-proj-nfdi4ing",
+      "code": "NFDI4ING",
+      "name": "NFDI4ING",
+      "status": "Active",
+      "sort_order": 0,
+      "parent_project_id": null
+    },
+    {
       "id": "seed-proj-1",
-      "code": "PRJ-01",
+      "code": "HD",
       "name": "HUMAN-DECISION",
       "status": "Active",
-      "sort_order": 4
+      "sort_order": 8
     },
     {
       "id": "seed-proj-2",
-      "code": "PRJ-02",
-      "name": "Payment Gateway Integration",
+      "code": "4Energy",
+      "name": "NFDI4Energy",
       "status": "Active",
-      "sort_order": 2
+      "sort_order": 8
     },
     {
       "id": "proj-1787066953712-dcecebc383a08",
-      "code": "PRJ-03",
-      "name": "NFDI4Energy",
+      "code": "4ING-FIS",
+      "name": "NFDI4ING-FIS",
       "status": "Active",
-      "sort_order": 3
+      "sort_order": 8,
+      "parent_project_id": "seed-proj-nfdi4ing"
+    },
+    {
+      "id": "proj-1787119405405-07a3fbf53d6698",
+      "code": "4ING-TES",
+      "name": "NFDI4ING-TES",
+      "status": "Active",
+      "sort_order": 8,
+      "parent_project_id": "seed-proj-nfdi4ing"
+    },
+    {
+      "id": "proj-1787119445298-ad2a6968e05d88",
+      "code": "4ING-ELLEN",
+      "name": "NFDI4ING-ELLEN",
+      "status": "Active",
+      "sort_order": 8,
+      "parent_project_id": "seed-proj-nfdi4ing"
+    },
+    {
+      "id": "proj-1787119468335-4e13ebc934587",
+      "code": "4ING-SKG",
+      "name": "NFDI4ING-SKG",
+      "status": "Active",
+      "sort_order": 8,
+      "parent_project_id": "seed-proj-nfdi4ing"
+    },
+    {
+      "id": "proj-1787120347277-f48a482e92bf88",
+      "code": "4ING-Sach",
+      "name": "NFDI4ING-Sach",
+      "status": "Active",
+      "sort_order": 8,
+      "parent_project_id": "seed-proj-nfdi4ing"
+    },
+    {
+      "id": "proj-1787121419578-922f790eb75d78",
+      "code": "Inno",
+      "name": "Innovationsfond",
+      "status": "Active",
+      "sort_order": 8
+    },
+    {
+      "id": "proj-1787121432957-ee7d9256a8edd8",
+      "code": "ECH",
+      "name": "ECHOLOT",
+      "status": "Active",
+      "sort_order": 9
+    },
+    {
+      "id": "proj-1787123580779-3a8ad354fdf51",
+      "code": "4EU",
+      "name": "SC4EU",
+      "status": "Active",
+      "sort_order": 11,
+      "parent_project_id": null
+    },
+    {
+      "id": "proj-1787123859720-0211c0801e3968",
+      "code": "WP1",
+      "name": "4EU",
+      "status": "Active",
+      "sort_order": 12,
+      "parent_project_id": "proj-1787123580779-3a8ad354fdf51"
+    },
+    {
+      "id": "proj-1787124694813-4a96f573def2c8",
+      "code": "WP2",
+      "name": "Name 1",
+      "status": "Active",
+      "sort_order": 13,
+      "parent_project_id": "proj-1787123580779-3a8ad354fdf51"
+    },
+    {
+      "id": "proj-1787124792437-f41d7e9fc7c628",
+      "code": "WP3",
+      "name": "Name 2",
+      "status": "Active",
+      "sort_order": 14,
+      "parent_project_id": "proj-1787123580779-3a8ad354fdf51"
+    },
+    {
+      "id": "proj-1787124972547-badec408aa2138",
+      "code": "WP4",
+      "name": "name 4",
+      "status": "Active",
+      "sort_order": 15,
+      "parent_project_id": "proj-1787123580779-3a8ad354fdf51"
+    },
+    {
+      "id": "proj-1787125277279-25efc0d658ba18",
+      "code": "WP5",
+      "name": "name 5",
+      "status": "Active",
+      "sort_order": 16,
+      "parent_project_id": "proj-1787123580779-3a8ad354fdf51"
+    },
+    {
+      "id": "proj-1787125409464-8dda5618b2ae58",
+      "code": "WP6",
+      "name": "name 4",
+      "status": "Active",
+      "sort_order": 17,
+      "parent_project_id": "proj-1787123580779-3a8ad354fdf51"
     }
   ],
   "allocations": [
@@ -58,20 +225,12 @@
       "allocation_pct": 1
     },
     {
-      "id": "alloc-1787066977915-506b3d40b8bea8",
-      "developer_id": "seed-dev-2",
-      "project_id": "seed-proj-1",
-      "year_id": "seed-year-2026",
-      "month": 1,
-      "allocation_pct": 0.4
-    },
-    {
       "id": "alloc-1787066980444-24afcd5050bb08",
       "developer_id": "seed-dev-2",
       "project_id": "seed-proj-2",
       "year_id": "seed-year-2026",
       "month": 1,
-      "allocation_pct": 0.2
+      "allocation_pct": 1
     },
     {
       "id": "alloc-1787070655176-a9c45d0c2c9db",
@@ -128,6 +287,798 @@
       "year_id": "seed-year-2026",
       "month": 8,
       "allocation_pct": 1
+    },
+    {
+      "id": "alloc-1787071342754-bc12e4838a983",
+      "developer_id": "seed-dev-2",
+      "project_id": "seed-proj-2",
+      "year_id": "seed-year-2026",
+      "month": 2,
+      "allocation_pct": 1
+    },
+    {
+      "id": "alloc-1787071346258-520fad4d9bddc8",
+      "developer_id": "seed-dev-2",
+      "project_id": "seed-proj-2",
+      "year_id": "seed-year-2026",
+      "month": 3,
+      "allocation_pct": 1
+    },
+    {
+      "id": "alloc-1787071349122-aede5c8186c4a8",
+      "developer_id": "seed-dev-2",
+      "project_id": "seed-proj-2",
+      "year_id": "seed-year-2026",
+      "month": 4,
+      "allocation_pct": 1
+    },
+    {
+      "id": "alloc-1787071351729-47f02b764349f",
+      "developer_id": "seed-dev-2",
+      "project_id": "seed-proj-2",
+      "year_id": "seed-year-2026",
+      "month": 5,
+      "allocation_pct": 1
+    },
+    {
+      "id": "alloc-1787071354130-97835cfd5abf18",
+      "developer_id": "seed-dev-2",
+      "project_id": "seed-proj-2",
+      "year_id": "seed-year-2026",
+      "month": 6,
+      "allocation_pct": 1
+    },
+    {
+      "id": "alloc-1787071356834-8066eaa02bea68",
+      "developer_id": "seed-dev-2",
+      "project_id": "seed-proj-2",
+      "year_id": "seed-year-2026",
+      "month": 7,
+      "allocation_pct": 1
+    },
+    {
+      "id": "alloc-1787071359800-d166e98d06a8",
+      "developer_id": "seed-dev-2",
+      "project_id": "seed-proj-2",
+      "year_id": "seed-year-2026",
+      "month": 8,
+      "allocation_pct": 1
+    },
+    {
+      "id": "alloc-1787119693706-62d88703c2e858",
+      "developer_id": "dev-1787071449804-b3b0b1c56134b8",
+      "project_id": "proj-1787119405405-07a3fbf53d6698",
+      "year_id": "seed-year-2026",
+      "month": 1,
+      "allocation_pct": 0.2
+    },
+    {
+      "id": "alloc-1787119701113-f3a51fbedcca1",
+      "developer_id": "dev-1787071449804-b3b0b1c56134b8",
+      "project_id": "proj-1787066953712-dcecebc383a08",
+      "year_id": "seed-year-2026",
+      "month": 1,
+      "allocation_pct": 0.5
+    },
+    {
+      "id": "alloc-1787119712812-04d5ad2b50fa28",
+      "developer_id": "dev-1787071449804-b3b0b1c56134b8",
+      "project_id": "proj-1787119445298-ad2a6968e05d88",
+      "year_id": "seed-year-2026",
+      "month": 1,
+      "allocation_pct": 0.3
+    },
+    {
+      "id": "alloc-1787119734902-26a5efa3aa4d18",
+      "developer_id": "dev-1787071449804-b3b0b1c56134b8",
+      "project_id": "proj-1787119405405-07a3fbf53d6698",
+      "year_id": "seed-year-2026",
+      "month": 2,
+      "allocation_pct": 0.2
+    },
+    {
+      "id": "alloc-1787119738486-e629db88b3106",
+      "developer_id": "dev-1787071449804-b3b0b1c56134b8",
+      "project_id": "proj-1787066953712-dcecebc383a08",
+      "year_id": "seed-year-2026",
+      "month": 2,
+      "allocation_pct": 0.5
+    },
+    {
+      "id": "alloc-1787119742412-9a2494b55181c",
+      "developer_id": "dev-1787071449804-b3b0b1c56134b8",
+      "project_id": "proj-1787119445298-ad2a6968e05d88",
+      "year_id": "seed-year-2026",
+      "month": 2,
+      "allocation_pct": 0.3
+    },
+    {
+      "id": "alloc-1787119746069-6bc66c2f963a6",
+      "developer_id": "dev-1787071449804-b3b0b1c56134b8",
+      "project_id": "proj-1787119405405-07a3fbf53d6698",
+      "year_id": "seed-year-2026",
+      "month": 3,
+      "allocation_pct": 0.2
+    },
+    {
+      "id": "alloc-1787119748059-ccb50c7aaf181",
+      "developer_id": "dev-1787071449804-b3b0b1c56134b8",
+      "project_id": "proj-1787066953712-dcecebc383a08",
+      "year_id": "seed-year-2026",
+      "month": 3,
+      "allocation_pct": 0.5
+    },
+    {
+      "id": "alloc-1787119751173-e260f48a278ea8",
+      "developer_id": "dev-1787071449804-b3b0b1c56134b8",
+      "project_id": "proj-1787119445298-ad2a6968e05d88",
+      "year_id": "seed-year-2026",
+      "month": 3,
+      "allocation_pct": 0.3
+    },
+    {
+      "id": "alloc-1787119755106-44d2d2d40e7ae8",
+      "developer_id": "dev-1787071449804-b3b0b1c56134b8",
+      "project_id": "proj-1787119405405-07a3fbf53d6698",
+      "year_id": "seed-year-2026",
+      "month": 4,
+      "allocation_pct": 0.2
+    },
+    {
+      "id": "alloc-1787119756738-d5b990e617cbe",
+      "developer_id": "dev-1787071449804-b3b0b1c56134b8",
+      "project_id": "proj-1787066953712-dcecebc383a08",
+      "year_id": "seed-year-2026",
+      "month": 4,
+      "allocation_pct": 0.5
+    },
+    {
+      "id": "alloc-1787119759094-db4e0c944a0c48",
+      "developer_id": "dev-1787071449804-b3b0b1c56134b8",
+      "project_id": "proj-1787119445298-ad2a6968e05d88",
+      "year_id": "seed-year-2026",
+      "month": 4,
+      "allocation_pct": 0.3
+    },
+    {
+      "id": "alloc-1787119762299-5b2df6abb4db28",
+      "developer_id": "dev-1787071449804-b3b0b1c56134b8",
+      "project_id": "proj-1787119405405-07a3fbf53d6698",
+      "year_id": "seed-year-2026",
+      "month": 5,
+      "allocation_pct": 0.2
+    },
+    {
+      "id": "alloc-1787119764005-229fa945f826b8",
+      "developer_id": "dev-1787071449804-b3b0b1c56134b8",
+      "project_id": "proj-1787066953712-dcecebc383a08",
+      "year_id": "seed-year-2026",
+      "month": 5,
+      "allocation_pct": 0.5
+    },
+    {
+      "id": "alloc-1787119768696-eda26728200828",
+      "developer_id": "dev-1787071449804-b3b0b1c56134b8",
+      "project_id": "proj-1787119445298-ad2a6968e05d88",
+      "year_id": "seed-year-2026",
+      "month": 5,
+      "allocation_pct": 0.3
+    },
+    {
+      "id": "alloc-1787119771905-f072c07e9ed368",
+      "developer_id": "dev-1787071449804-b3b0b1c56134b8",
+      "project_id": "proj-1787119405405-07a3fbf53d6698",
+      "year_id": "seed-year-2026",
+      "month": 6,
+      "allocation_pct": 0.2
+    },
+    {
+      "id": "alloc-1787119773099-55177c918faa2",
+      "developer_id": "dev-1787071449804-b3b0b1c56134b8",
+      "project_id": "proj-1787066953712-dcecebc383a08",
+      "year_id": "seed-year-2026",
+      "month": 6,
+      "allocation_pct": 0.5
+    },
+    {
+      "id": "alloc-1787119775852-0e9d6f57f10238",
+      "developer_id": "dev-1787071449804-b3b0b1c56134b8",
+      "project_id": "proj-1787119445298-ad2a6968e05d88",
+      "year_id": "seed-year-2026",
+      "month": 6,
+      "allocation_pct": 0.3
+    },
+    {
+      "id": "alloc-1787119778983-b05dc7d7aff3a8",
+      "developer_id": "dev-1787071449804-b3b0b1c56134b8",
+      "project_id": "proj-1787119405405-07a3fbf53d6698",
+      "year_id": "seed-year-2026",
+      "month": 7,
+      "allocation_pct": 0.2
+    },
+    {
+      "id": "alloc-1787119780306-c7f204f265e678",
+      "developer_id": "dev-1787071449804-b3b0b1c56134b8",
+      "project_id": "proj-1787066953712-dcecebc383a08",
+      "year_id": "seed-year-2026",
+      "month": 7,
+      "allocation_pct": 0.5
+    },
+    {
+      "id": "alloc-1787119783091-54ad024605f508",
+      "developer_id": "dev-1787071449804-b3b0b1c56134b8",
+      "project_id": "proj-1787119445298-ad2a6968e05d88",
+      "year_id": "seed-year-2026",
+      "month": 7,
+      "allocation_pct": 0.3
+    },
+    {
+      "id": "alloc-1787119800365-301fa54681d49",
+      "developer_id": "dev-1787071449804-b3b0b1c56134b8",
+      "project_id": "proj-1787119405405-07a3fbf53d6698",
+      "year_id": "seed-year-2026",
+      "month": 8,
+      "allocation_pct": 0.2
+    },
+    {
+      "id": "alloc-1787119801271-45c36442e3e228",
+      "developer_id": "dev-1787071449804-b3b0b1c56134b8",
+      "project_id": "proj-1787066953712-dcecebc383a08",
+      "year_id": "seed-year-2026",
+      "month": 8,
+      "allocation_pct": 0.5
+    },
+    {
+      "id": "alloc-1787119802925-0e04f2f7b01218",
+      "developer_id": "dev-1787071449804-b3b0b1c56134b8",
+      "project_id": "proj-1787119445298-ad2a6968e05d88",
+      "year_id": "seed-year-2026",
+      "month": 8,
+      "allocation_pct": 0.3
+    },
+    {
+      "id": "alloc-1787119919932-1d0824e347c01",
+      "developer_id": "dev-1787119831796-62af0052d16608",
+      "project_id": "proj-1787119468335-4e13ebc934587",
+      "year_id": "seed-year-2026",
+      "month": 1,
+      "allocation_pct": 1
+    },
+    {
+      "id": "alloc-1787119922978-ae46d5a3c39d88",
+      "developer_id": "dev-1787119831796-62af0052d16608",
+      "project_id": "proj-1787119468335-4e13ebc934587",
+      "year_id": "seed-year-2026",
+      "month": 2,
+      "allocation_pct": 1
+    },
+    {
+      "id": "alloc-1787119925232-61996fa5af8ed",
+      "developer_id": "dev-1787119831796-62af0052d16608",
+      "project_id": "proj-1787119468335-4e13ebc934587",
+      "year_id": "seed-year-2026",
+      "month": 3,
+      "allocation_pct": 1
+    },
+    {
+      "id": "alloc-1787119927725-265b05d309b04",
+      "developer_id": "dev-1787119831796-62af0052d16608",
+      "project_id": "proj-1787119468335-4e13ebc934587",
+      "year_id": "seed-year-2026",
+      "month": 4,
+      "allocation_pct": 1
+    },
+    {
+      "id": "alloc-1787119929857-b2ff51ea7a30e8",
+      "developer_id": "dev-1787119831796-62af0052d16608",
+      "project_id": "proj-1787119468335-4e13ebc934587",
+      "year_id": "seed-year-2026",
+      "month": 5,
+      "allocation_pct": 1
+    },
+    {
+      "id": "alloc-1787119932303-7acd65dcd2f73",
+      "developer_id": "dev-1787119831796-62af0052d16608",
+      "project_id": "proj-1787119468335-4e13ebc934587",
+      "year_id": "seed-year-2026",
+      "month": 6,
+      "allocation_pct": 1
+    },
+    {
+      "id": "alloc-1787119934735-5ca9932937863",
+      "developer_id": "dev-1787119831796-62af0052d16608",
+      "project_id": "proj-1787119468335-4e13ebc934587",
+      "year_id": "seed-year-2026",
+      "month": 7,
+      "allocation_pct": 1
+    },
+    {
+      "id": "alloc-1787119977251-3c5d0d94d1fd28",
+      "developer_id": "dev-1787071449804-b3b0b1c56134b8",
+      "project_id": "proj-1787119405405-07a3fbf53d6698",
+      "year_id": "seed-year-2026",
+      "month": 9,
+      "allocation_pct": 0.2
+    },
+    {
+      "id": "alloc-1787119980250-c37444ab6a329",
+      "developer_id": "dev-1787071449804-b3b0b1c56134b8",
+      "project_id": "proj-1787066953712-dcecebc383a08",
+      "year_id": "seed-year-2026",
+      "month": 9,
+      "allocation_pct": 0.5
+    },
+    {
+      "id": "alloc-1787119984685-690e7f2c4e9368",
+      "developer_id": "dev-1787071449804-b3b0b1c56134b8",
+      "project_id": "proj-1787119445298-ad2a6968e05d88",
+      "year_id": "seed-year-2026",
+      "month": 9,
+      "allocation_pct": 0.3
+    },
+    {
+      "id": "alloc-1787119987804-7dbb19af82ee18",
+      "developer_id": "dev-1787071449804-b3b0b1c56134b8",
+      "project_id": "proj-1787119405405-07a3fbf53d6698",
+      "year_id": "seed-year-2026",
+      "month": 10,
+      "allocation_pct": 0.2
+    },
+    {
+      "id": "alloc-1787119988768-73ecc0ceb3581",
+      "developer_id": "dev-1787071449804-b3b0b1c56134b8",
+      "project_id": "proj-1787066953712-dcecebc383a08",
+      "year_id": "seed-year-2026",
+      "month": 10,
+      "allocation_pct": 0.5
+    },
+    {
+      "id": "alloc-1787119991160-6ea108c1edad28",
+      "developer_id": "dev-1787071449804-b3b0b1c56134b8",
+      "project_id": "proj-1787119445298-ad2a6968e05d88",
+      "year_id": "seed-year-2026",
+      "month": 10,
+      "allocation_pct": 0.3
+    },
+    {
+      "id": "alloc-1787119993851-c553f1b03c6e",
+      "developer_id": "dev-1787071449804-b3b0b1c56134b8",
+      "project_id": "proj-1787119405405-07a3fbf53d6698",
+      "year_id": "seed-year-2026",
+      "month": 11,
+      "allocation_pct": 0.2
+    },
+    {
+      "id": "alloc-1787119994848-1c845d6eede3a8",
+      "developer_id": "dev-1787071449804-b3b0b1c56134b8",
+      "project_id": "proj-1787066953712-dcecebc383a08",
+      "year_id": "seed-year-2026",
+      "month": 11,
+      "allocation_pct": 0.5
+    },
+    {
+      "id": "alloc-1787119997841-3eaa81cefa83f8",
+      "developer_id": "dev-1787071449804-b3b0b1c56134b8",
+      "project_id": "proj-1787119445298-ad2a6968e05d88",
+      "year_id": "seed-year-2026",
+      "month": 11,
+      "allocation_pct": 0.3
+    },
+    {
+      "id": "alloc-1787120001927-ec25039c179c48",
+      "developer_id": "dev-1787071449804-b3b0b1c56134b8",
+      "project_id": "proj-1787119405405-07a3fbf53d6698",
+      "year_id": "seed-year-2026",
+      "month": 12,
+      "allocation_pct": 0.2
+    },
+    {
+      "id": "alloc-1787120003804-526c0f01c7c858",
+      "developer_id": "dev-1787071449804-b3b0b1c56134b8",
+      "project_id": "proj-1787066953712-dcecebc383a08",
+      "year_id": "seed-year-2026",
+      "month": 12,
+      "allocation_pct": 0.5
+    },
+    {
+      "id": "alloc-1787120008063-2179133e60812",
+      "developer_id": "dev-1787071449804-b3b0b1c56134b8",
+      "project_id": "proj-1787119445298-ad2a6968e05d88",
+      "year_id": "seed-year-2026",
+      "month": 12,
+      "allocation_pct": 0.3
+    },
+    {
+      "id": "alloc-1787120147249-4e7b0a0429665",
+      "developer_id": "dev-1787120110623-6d168c3c0753",
+      "project_id": "proj-1787119468335-4e13ebc934587",
+      "year_id": "seed-year-2026",
+      "month": 8,
+      "allocation_pct": 1
+    },
+    {
+      "id": "alloc-1787120152478-b7280b288b3968",
+      "developer_id": "dev-1787120110623-6d168c3c0753",
+      "project_id": "proj-1787119468335-4e13ebc934587",
+      "year_id": "seed-year-2026",
+      "month": 9,
+      "allocation_pct": 1
+    },
+    {
+      "id": "alloc-1787120155314-4af27967420998",
+      "developer_id": "dev-1787120110623-6d168c3c0753",
+      "project_id": "proj-1787119468335-4e13ebc934587",
+      "year_id": "seed-year-2026",
+      "month": 10,
+      "allocation_pct": 1
+    },
+    {
+      "id": "alloc-1787120157717-00db77fa02f69",
+      "developer_id": "dev-1787120110623-6d168c3c0753",
+      "project_id": "proj-1787119468335-4e13ebc934587",
+      "year_id": "seed-year-2026",
+      "month": 11,
+      "allocation_pct": 1
+    },
+    {
+      "id": "alloc-1787120159792-0ff6d88bbfe6",
+      "developer_id": "dev-1787120110623-6d168c3c0753",
+      "project_id": "proj-1787119468335-4e13ebc934587",
+      "year_id": "seed-year-2026",
+      "month": 12,
+      "allocation_pct": 1
+    },
+    {
+      "id": "alloc-1787120207459-43500298fb54f8",
+      "developer_id": "seed-dev-1",
+      "project_id": "seed-proj-1",
+      "year_id": "seed-year-2026",
+      "month": 9,
+      "allocation_pct": 1
+    },
+    {
+      "id": "alloc-1787120208953-ef94b146649a28",
+      "developer_id": "seed-dev-2",
+      "project_id": "seed-proj-2",
+      "year_id": "seed-year-2026",
+      "month": 9,
+      "allocation_pct": 1
+    },
+    {
+      "id": "alloc-1787120211797-2f5075072921",
+      "developer_id": "seed-dev-1",
+      "project_id": "seed-proj-1",
+      "year_id": "seed-year-2026",
+      "month": 10,
+      "allocation_pct": 1
+    },
+    {
+      "id": "alloc-1787120213528-56f03d2c693208",
+      "developer_id": "seed-dev-2",
+      "project_id": "seed-proj-2",
+      "year_id": "seed-year-2026",
+      "month": 10,
+      "allocation_pct": 1
+    },
+    {
+      "id": "alloc-1787120215929-c689417e526b2",
+      "developer_id": "seed-dev-1",
+      "project_id": "seed-proj-1",
+      "year_id": "seed-year-2026",
+      "month": 11,
+      "allocation_pct": 1
+    },
+    {
+      "id": "alloc-1787120217394-026227243626f",
+      "developer_id": "seed-dev-2",
+      "project_id": "seed-proj-2",
+      "year_id": "seed-year-2026",
+      "month": 11,
+      "allocation_pct": 1
+    },
+    {
+      "id": "alloc-1787120219947-3b1dedffedd3a",
+      "developer_id": "seed-dev-1",
+      "project_id": "seed-proj-1",
+      "year_id": "seed-year-2026",
+      "month": 12,
+      "allocation_pct": 1
+    },
+    {
+      "id": "alloc-1787120221817-d8de8bc342bb5",
+      "developer_id": "seed-dev-2",
+      "project_id": "seed-proj-2",
+      "year_id": "seed-year-2026",
+      "month": 12,
+      "allocation_pct": 1
+    },
+    {
+      "id": "alloc-1787120657516-c05c39c487482",
+      "developer_id": "dev-1787120618877-852f66dbd4eba8",
+      "project_id": "proj-1787120347277-f48a482e92bf88",
+      "year_id": "seed-year-2026",
+      "month": 7,
+      "allocation_pct": 0.3
+    },
+    {
+      "id": "alloc-1787120750373-2e9c4ed7de668",
+      "developer_id": "dev-1787120526877-36e6e035646b98",
+      "project_id": "proj-1787120347277-f48a482e92bf88",
+      "year_id": "seed-year-2026",
+      "month": 7,
+      "allocation_pct": 0.2
+    },
+    {
+      "id": "alloc-1787120794359-88cbc0cc178168",
+      "developer_id": "dev-1787120526877-36e6e035646b98",
+      "project_id": "proj-1787120347277-f48a482e92bf88",
+      "year_id": "seed-year-2026",
+      "month": 8,
+      "allocation_pct": 0.2
+    },
+    {
+      "id": "alloc-1787120797644-9bc9527b3d1ed",
+      "developer_id": "dev-1787120618877-852f66dbd4eba8",
+      "project_id": "proj-1787120347277-f48a482e92bf88",
+      "year_id": "seed-year-2026",
+      "month": 8,
+      "allocation_pct": 0.3
+    },
+    {
+      "id": "alloc-1787120802180-40b33aa7634368",
+      "developer_id": "dev-1787120526877-36e6e035646b98",
+      "project_id": "proj-1787120347277-f48a482e92bf88",
+      "year_id": "seed-year-2026",
+      "month": 9,
+      "allocation_pct": 0.2
+    },
+    {
+      "id": "alloc-1787120804923-88de10a7482ba8",
+      "developer_id": "dev-1787120618877-852f66dbd4eba8",
+      "project_id": "proj-1787120347277-f48a482e92bf88",
+      "year_id": "seed-year-2026",
+      "month": 9,
+      "allocation_pct": 0.3
+    },
+    {
+      "id": "alloc-1787120809676-6fdffd4f6566b",
+      "developer_id": "dev-1787120526877-36e6e035646b98",
+      "project_id": "proj-1787120347277-f48a482e92bf88",
+      "year_id": "seed-year-2026",
+      "month": 10,
+      "allocation_pct": 0.2
+    },
+    {
+      "id": "alloc-1787120812365-2e3f1b927d0bc",
+      "developer_id": "dev-1787120618877-852f66dbd4eba8",
+      "project_id": "proj-1787120347277-f48a482e92bf88",
+      "year_id": "seed-year-2026",
+      "month": 10,
+      "allocation_pct": 0.3
+    },
+    {
+      "id": "alloc-1787120816203-68715a532338e8",
+      "developer_id": "dev-1787120526877-36e6e035646b98",
+      "project_id": "proj-1787120347277-f48a482e92bf88",
+      "year_id": "seed-year-2026",
+      "month": 11,
+      "allocation_pct": 0.2
+    },
+    {
+      "id": "alloc-1787120818897-d9792f3e6e9b8",
+      "developer_id": "dev-1787120618877-852f66dbd4eba8",
+      "project_id": "proj-1787120347277-f48a482e92bf88",
+      "year_id": "seed-year-2026",
+      "month": 11,
+      "allocation_pct": 0.3
+    },
+    {
+      "id": "alloc-1787120822418-9629ae4e43072",
+      "developer_id": "dev-1787120526877-36e6e035646b98",
+      "project_id": "proj-1787120347277-f48a482e92bf88",
+      "year_id": "seed-year-2026",
+      "month": 12,
+      "allocation_pct": 0.2
+    },
+    {
+      "id": "alloc-1787120824949-4272221a4509c8",
+      "developer_id": "dev-1787120618877-852f66dbd4eba8",
+      "project_id": "proj-1787120347277-f48a482e92bf88",
+      "year_id": "seed-year-2026",
+      "month": 12,
+      "allocation_pct": 0.3
+    },
+    {
+      "id": "alloc-1787121459159-889c6de99d714",
+      "developer_id": "dev-1787121384683-5706ff06ba32d8",
+      "project_id": "proj-1787121419578-922f790eb75d78",
+      "year_id": "seed-year-2026",
+      "month": 1,
+      "allocation_pct": 0.5
+    },
+    {
+      "id": "alloc-1787121460470-56c9f460507118",
+      "developer_id": "dev-1787121384683-5706ff06ba32d8",
+      "project_id": "proj-1787121432957-ee7d9256a8edd8",
+      "year_id": "seed-year-2026",
+      "month": 1,
+      "allocation_pct": 0.5
+    },
+    {
+      "id": "alloc-1787121464746-04ffe5b55426",
+      "developer_id": "dev-1787121384683-5706ff06ba32d8",
+      "project_id": "proj-1787121419578-922f790eb75d78",
+      "year_id": "seed-year-2026",
+      "month": 2,
+      "allocation_pct": 0.5
+    },
+    {
+      "id": "alloc-1787121466159-4d33dc3e0bc9e",
+      "developer_id": "dev-1787121384683-5706ff06ba32d8",
+      "project_id": "proj-1787121432957-ee7d9256a8edd8",
+      "year_id": "seed-year-2026",
+      "month": 2,
+      "allocation_pct": 0.5
+    },
+    {
+      "id": "alloc-1787121468513-0fe88e8c4927e",
+      "developer_id": "dev-1787121384683-5706ff06ba32d8",
+      "project_id": "proj-1787121419578-922f790eb75d78",
+      "year_id": "seed-year-2026",
+      "month": 3,
+      "allocation_pct": 0.5
+    },
+    {
+      "id": "alloc-1787121469724-4587620eb823a",
+      "developer_id": "dev-1787121384683-5706ff06ba32d8",
+      "project_id": "proj-1787121432957-ee7d9256a8edd8",
+      "year_id": "seed-year-2026",
+      "month": 3,
+      "allocation_pct": 0.5
+    },
+    {
+      "id": "alloc-1787121472088-26494ed84d0ef8",
+      "developer_id": "dev-1787121384683-5706ff06ba32d8",
+      "project_id": "proj-1787121419578-922f790eb75d78",
+      "year_id": "seed-year-2026",
+      "month": 4,
+      "allocation_pct": 0.5
+    },
+    {
+      "id": "alloc-1787121473417-48026c5798e2d8",
+      "developer_id": "dev-1787121384683-5706ff06ba32d8",
+      "project_id": "proj-1787121432957-ee7d9256a8edd8",
+      "year_id": "seed-year-2026",
+      "month": 4,
+      "allocation_pct": 0.5
+    },
+    {
+      "id": "alloc-1787121475401-750c00368e2b18",
+      "developer_id": "dev-1787121384683-5706ff06ba32d8",
+      "project_id": "proj-1787121419578-922f790eb75d78",
+      "year_id": "seed-year-2026",
+      "month": 5,
+      "allocation_pct": 0.5
+    },
+    {
+      "id": "alloc-1787121476794-5ed628c7b0b478",
+      "developer_id": "dev-1787121384683-5706ff06ba32d8",
+      "project_id": "proj-1787121432957-ee7d9256a8edd8",
+      "year_id": "seed-year-2026",
+      "month": 5,
+      "allocation_pct": 0.5
+    },
+    {
+      "id": "alloc-1787121479439-89df35440a1098",
+      "developer_id": "dev-1787121384683-5706ff06ba32d8",
+      "project_id": "proj-1787121419578-922f790eb75d78",
+      "year_id": "seed-year-2026",
+      "month": 6,
+      "allocation_pct": 0.5
+    },
+    {
+      "id": "alloc-1787121480986-069c4ba32a7b08",
+      "developer_id": "dev-1787121384683-5706ff06ba32d8",
+      "project_id": "proj-1787121432957-ee7d9256a8edd8",
+      "year_id": "seed-year-2026",
+      "month": 6,
+      "allocation_pct": 0.5
+    },
+    {
+      "id": "alloc-1787121484088-9166d43c4bdaf",
+      "developer_id": "dev-1787121384683-5706ff06ba32d8",
+      "project_id": "proj-1787121419578-922f790eb75d78",
+      "year_id": "seed-year-2026",
+      "month": 7,
+      "allocation_pct": 0.5
+    },
+    {
+      "id": "alloc-1787121485331-43d78fa85ab7d8",
+      "developer_id": "dev-1787121384683-5706ff06ba32d8",
+      "project_id": "proj-1787121432957-ee7d9256a8edd8",
+      "year_id": "seed-year-2026",
+      "month": 7,
+      "allocation_pct": 0.5
+    },
+    {
+      "id": "alloc-1787121488032-831a02a35660f8",
+      "developer_id": "dev-1787121384683-5706ff06ba32d8",
+      "project_id": "proj-1787121419578-922f790eb75d78",
+      "year_id": "seed-year-2026",
+      "month": 8,
+      "allocation_pct": 0.5
+    },
+    {
+      "id": "alloc-1787121489174-236955c749711",
+      "developer_id": "dev-1787121384683-5706ff06ba32d8",
+      "project_id": "proj-1787121432957-ee7d9256a8edd8",
+      "year_id": "seed-year-2026",
+      "month": 8,
+      "allocation_pct": 0.5
+    },
+    {
+      "id": "alloc-1787121491438-84d630494a6e38",
+      "developer_id": "dev-1787121384683-5706ff06ba32d8",
+      "project_id": "proj-1787121419578-922f790eb75d78",
+      "year_id": "seed-year-2026",
+      "month": 9,
+      "allocation_pct": 0.5
+    },
+    {
+      "id": "alloc-1787121493286-45f4a3c4972b68",
+      "developer_id": "dev-1787121384683-5706ff06ba32d8",
+      "project_id": "proj-1787121432957-ee7d9256a8edd8",
+      "year_id": "seed-year-2026",
+      "month": 9,
+      "allocation_pct": 0.5
+    },
+    {
+      "id": "alloc-1787121495530-94a106ab07eb48",
+      "developer_id": "dev-1787121384683-5706ff06ba32d8",
+      "project_id": "proj-1787121419578-922f790eb75d78",
+      "year_id": "seed-year-2026",
+      "month": 10,
+      "allocation_pct": 0.5
+    },
+    {
+      "id": "alloc-1787121496587-4976f5304671a",
+      "developer_id": "dev-1787121384683-5706ff06ba32d8",
+      "project_id": "proj-1787121432957-ee7d9256a8edd8",
+      "year_id": "seed-year-2026",
+      "month": 10,
+      "allocation_pct": 0.5
+    },
+    {
+      "id": "alloc-1787121498927-de8b5606b996c8",
+      "developer_id": "dev-1787121384683-5706ff06ba32d8",
+      "project_id": "proj-1787121419578-922f790eb75d78",
+      "year_id": "seed-year-2026",
+      "month": 11,
+      "allocation_pct": 0.5
+    },
+    {
+      "id": "alloc-1787121500145-a752ce615e4d38",
+      "developer_id": "dev-1787121384683-5706ff06ba32d8",
+      "project_id": "proj-1787121432957-ee7d9256a8edd8",
+      "year_id": "seed-year-2026",
+      "month": 11,
+      "allocation_pct": 0.5
+    },
+    {
+      "id": "alloc-1787121503779-6fd5f82c18b918",
+      "developer_id": "dev-1787121384683-5706ff06ba32d8",
+      "project_id": "proj-1787121419578-922f790eb75d78",
+      "year_id": "seed-year-2026",
+      "month": 12,
+      "allocation_pct": 0.5
+    },
+    {
+      "id": "alloc-1787121504353-eb9cd2463700a",
+      "developer_id": "dev-1787121384683-5706ff06ba32d8",
+      "project_id": "proj-1787121432957-ee7d9256a8edd8",
+      "year_id": "seed-year-2026",
+      "month": 12,
+      "allocation_pct": 0.5
     }
   ],
   "salary_entries": [

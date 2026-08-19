@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { getProjectHierarchy, getWorkpackages } from '@/lib/types';
 import type { Allocation, Developer, Project, Year, DeveloperSalaryEntry, ExtraPayment } from '@/lib/types';
 import { MONTH_NAMES, QUARTERS } from '@/lib/types';
 import {
@@ -7,7 +8,7 @@ import {
 } from '@/lib/calc';
 import { fmtEUR, fmtNum, fmtFTE, fmtPct } from '@/lib/format';
 import { PageHeader } from '@/components/PageHeader';
-import { Download, User, FolderKanban, DollarSign } from 'lucide-react';
+import { Download, User, FolderKanban, DollarSign, ChevronDown, ChevronRight } from 'lucide-react';
 
 interface ReportsProps {
   year: Year;
@@ -176,21 +177,44 @@ function ProjectView({
   salary_entries: DeveloperSalaryEntry[];
   extra_payments: ExtraPayment[];
 }) {
-  const rows = useMemo(
-    () =>
-      projects.map((p) => {
+  const [collapsedProjectIds, setCollapsedProjectIds] = useState<Set<string>>(new Set());
+  const rows = useMemo(() => {
+    const projectRows = getProjectHierarchy(projects).map((p) => {
         const monthly = MONTH_NAMES.map((_, i) => projectMonthFTE(allocations, p.id, year.id, i + 1));
         const totalFTE = monthly.reduce((s, v) => s + v, 0);
         const totalPT = projectTotalPT(allocations, p.id, year.id, year.working_days_per_month);
         const rate = projectWeightedRate(allocations, p.id, year.id, developers, year, salary_entries);
         const budget = projectTotalBudget(allocations, p.id, year, developers, salary_entries, extra_payments);
         return { proj: p, monthly, totalFTE, totalPT, rate, budget };
-      }),
-    [projects, allocations, year, developers, salary_entries, extra_payments]
+      });
+
+    return projectRows.map((row) => {
+      const workpackages = getWorkpackages(projects, row.proj.id);
+      if (workpackages.length === 0) return row;
+
+      const childRows = projectRows.filter((childRow) =>
+        workpackages.some((workpackage) => workpackage.id === childRow.proj.id)
+      );
+      const monthly = MONTH_NAMES.map((_, monthIndex) =>
+        childRows.reduce((sum, childRow) => sum + childRow.monthly[monthIndex], 0)
+      );
+      const totalFTE = childRows.reduce((sum, childRow) => sum + childRow.totalFTE, 0);
+      const totalPT = childRows.reduce((sum, childRow) => sum + childRow.totalPT, 0);
+      const budget = childRows.reduce((sum, childRow) => sum + childRow.budget, 0);
+      const rate = totalFTE > 0
+        ? childRows.reduce((sum, childRow) => sum + childRow.rate * childRow.totalFTE, 0) / totalFTE
+        : 0;
+
+      return { ...row, monthly, totalFTE, totalPT, rate, budget };
+    });
+  }, [projects, allocations, year, developers, salary_entries, extra_payments]);
+  const summaryRows = rows.filter((row) => !row.proj.parent_project_id);
+  const visibleRows = rows.filter((row) =>
+    !row.proj.parent_project_id || !collapsedProjectIds.has(row.proj.parent_project_id)
   );
 
   const exportCSV = () => {
-    const header = ['Code', 'Name', 'Status', ...MONTH_NAMES, 'Total FTE', 'Total PT', 'Weighted Rate (EUR/h)', 'Total Budget (EUR)'];
+    const header = ['Code', 'Name', 'Status', ...MONTH_NAMES, 'Total PM', 'Total PT', 'Weighted Rate (EUR/h)', 'Total Budget (EUR)'];
     const lines = rows.map((r) =>
       [
         r.proj.code, `"${r.proj.name}"`, r.proj.status,
@@ -219,18 +243,37 @@ function ProjectView({
               {MONTH_NAMES.map((m) => (
                 <th key={m} className="px-2 py-3 text-right font-medium">{m}</th>
               ))}
-              <th className="px-2 py-3 text-right font-medium">FTE</th>
+              <th className="px-2 py-3 text-right font-medium">PM</th>
               <th className="px-2 py-3 text-right font-medium">PT</th>
               <th className="px-2 py-3 text-right font-medium">Rate</th>
               <th className="px-2 py-3 text-right font-medium">Budget</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
-            {rows.map((r) => (
-              <tr key={r.proj.id} className="hover:bg-slate-50/50">
-                <td className="sticky left-0 z-10 bg-white px-5 py-2.5">
-                  <div className="font-mono font-medium text-slate-800">{r.proj.code}</div>
-                  <div className="text-xs text-slate-400 truncate max-w-[160px]">{r.proj.name}</div>
+            {visibleRows.map((r) => (
+              <tr key={r.proj.id} className={`hover:bg-slate-50/50 ${r.proj.parent_project_id ? 'bg-slate-50/50' : 'bg-white'}`}>
+                <td className={`sticky left-0 z-10 px-5 py-2.5 ${r.proj.parent_project_id ? 'border-l-2 border-slate-200 bg-slate-50/80' : 'bg-white'}`}>
+                  <div className={`font-mono ${r.proj.parent_project_id ? 'pl-4 text-sm text-slate-600' : 'font-semibold text-slate-800'}`}>
+                    {!r.proj.parent_project_id && getWorkpackages(projects, r.proj.id).length > 0 && (
+                      <button
+                        onClick={() => setCollapsedProjectIds((current) => {
+                          const next = new Set(current);
+                          if (next.has(r.proj.id)) next.delete(r.proj.id);
+                          else next.add(r.proj.id);
+                          return next;
+                        })}
+                        className="mr-1 inline-flex rounded p-0.5 text-slate-400 hover:bg-slate-200 hover:text-slate-700"
+                        aria-label={`${collapsedProjectIds.has(r.proj.id) ? 'Expand' : 'Collapse'} workpackages for ${r.proj.name}`}
+                      >
+                        {collapsedProjectIds.has(r.proj.id) ? <ChevronRight className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                      </button>
+                    )}
+                    {r.proj.parent_project_id && <span className="mr-2 text-slate-300">↳</span>}
+                    {r.proj.code}
+                  </div>
+                  <div className={`truncate max-w-[160px] ${r.proj.parent_project_id ? 'pl-4 text-[11px] text-slate-400' : 'text-xs text-slate-400'}`}>
+                    {r.proj.name}
+                  </div>
                 </td>
                 {r.monthly.map((v, i) => (
                   <td key={i} className={`px-2 py-2.5 text-right ${v > 0 ? 'text-slate-600' : 'text-slate-300'}`}>
@@ -240,7 +283,9 @@ function ProjectView({
                 <td className="px-2 py-2.5 text-right font-semibold text-slate-800">{r.totalFTE.toFixed(2)}</td>
                 <td className="px-2 py-2.5 text-right text-slate-700">{fmtNum(r.totalPT, 1)}</td>
                 <td className="px-2 py-2.5 text-right text-slate-600">{fmtEUR(r.rate)}</td>
-                <td className="px-2 py-2.5 text-right font-semibold text-slate-900">{fmtEUR(r.budget)}</td>
+                <td className={`px-2 py-2.5 text-right ${r.proj.parent_project_id ? 'text-slate-700' : 'font-semibold text-slate-900'}`}>
+                  {fmtEUR(r.budget)}
+                </td>
               </tr>
             ))}
           </tbody>
@@ -249,13 +294,13 @@ function ProjectView({
               <td className="sticky left-0 z-10 bg-slate-50 px-5 py-3">Total</td>
               {MONTH_NAMES.map((_, i) => (
                 <td key={i} className="px-2 py-3 text-right text-slate-600">
-                  {rows.reduce((s, r) => s + r.monthly[i], 0).toFixed(2)}
+                  {summaryRows.reduce((s, r) => s + r.monthly[i], 0).toFixed(2)}
                 </td>
               ))}
-              <td className="px-2 py-3 text-right">{rows.reduce((s, r) => s + r.totalFTE, 0).toFixed(2)}</td>
-              <td className="px-2 py-3 text-right">{fmtNum(rows.reduce((s, r) => s + r.totalPT, 0), 1)}</td>
+              <td className="px-2 py-3 text-right">{summaryRows.reduce((s, r) => s + r.totalFTE, 0).toFixed(2)}</td>
+              <td className="px-2 py-3 text-right">{fmtNum(summaryRows.reduce((s, r) => s + r.totalPT, 0), 1)}</td>
               <td className="px-2 py-3 text-right">—</td>
-              <td className="px-2 py-3 text-right">{fmtEUR(rows.reduce((s, r) => s + r.budget, 0))}</td>
+              <td className="px-2 py-3 text-right">{fmtEUR(summaryRows.reduce((s, r) => s + r.budget, 0))}</td>
             </tr>
           </tfoot>
         </table>
